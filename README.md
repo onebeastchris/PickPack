@@ -1,2 +1,2 @@
-# HideCommands
-A Geyser extension that hides commands.
+# pshhhhhhhhhhh
+depends on geyser api changes
