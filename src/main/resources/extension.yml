@@ -1,0 +1,6 @@
+id: packking
+name: packking
+main: net.onebeastchris.geyser.extension.packing.packing
+api: 1.0.0
+version: 1.0.1
+authors: [onebeastchris]

@@ -1,0 +1,39 @@
+plugins {
+    id 'java-library'
+    id 'java'
+}
+
+group 'net.onebeastchris.geyser.extension'
+version '1.0.1'
+
+repositories {
+    //mavenCentral()
+    mavenLocal()
+    mavenCentral()
+    maven {
+        url 'https://repo.opencollab.dev/main'
+    }
+    maven {
+        url 'https://oss.sonatype.org/content/repositories/snapshots'
+        mavenContent {
+            snapshotsOnly()
+        }
+    }
+    maven {
+        url 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
+    }
+    maven {
+        url 'https://jitpack.io'
+    }
+}
+
+dependencies {
+    api('org.geysermc.geyser:core:2.1.0-SNAPSHOT') {
+        exclude group: 'io.netty'
+    }
+    api 'org.geysermc.geyser:api:2.1.0-SNAPSHOT'
+}
+
+test {
+    useJUnitPlatform()
+}
