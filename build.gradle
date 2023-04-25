@@ -28,10 +28,10 @@ repositories {
 }
 
 dependencies {
-    api('org.geysermc.geyser:core:2.1.0-SNAPSHOT') {
+    implementation('org.geysermc.geyser:core:2.1.0-SNAPSHOT') {
         exclude group: 'io.netty'
     }
-    api 'org.geysermc.geyser:api:2.1.0-SNAPSHOT'
+    implementation 'org.geysermc.geyser:api:2.1.0-SNAPSHOT'
 }
 
 test {

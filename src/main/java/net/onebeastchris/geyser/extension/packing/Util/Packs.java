@@ -1,8 +1,5 @@
 package net.onebeastchris.geyser.extension.packing.Util;
 
-
-
-import org.geysermc.geyser.GeyserLogger;
 import org.geysermc.geyser.api.extension.ExtensionLogger;
 import org.geysermc.geyser.api.packs.ResourcePack;
 import org.geysermc.geyser.pack.ResourcePackUtil;
@@ -19,11 +16,17 @@ public class Packs {
     }
 
     public Map<String, ResourcePack> packsmap = new HashMap<>();
+
+    public Map<String, String> packNamesMap = new HashMap<>();
     public void loadPacks(Path packsPath) {
         try {
             packsmap = ResourcePackUtil.loadPacksToMap(packsPath);
             logger.info("Loaded " + packsmap.size() + " packs!");
             logger.info("Packs: " + packsmap.toString());
+
+            for (Map.Entry<String, ResourcePack> entry : packsmap.entrySet()) {
+                packNamesMap.put(entry.getValue().getManifest().getHeader().getName(), entry.getKey());
+            }
         } catch (Exception e) {
             logger.error("Failed to load packs!", e);
         }
