@@ -52,7 +52,7 @@ public class packing implements Extension {
 
     //on player join: send packs if we have any for them
     @Subscribe
-    public void onSessionInitialize(PlayerResourcePackLoadEvent event) {
+    public void onPlayerResourcePackLoadEvent(PlayerResourcePackLoadEvent event) {
         this.logger.info("Player joined!");
         event.setPacks(storage.getPacks(event.connection().xuid()));
         logger().info("Sent packs to player!");
