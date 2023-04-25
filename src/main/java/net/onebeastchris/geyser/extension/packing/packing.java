@@ -3,18 +3,14 @@ package net.onebeastchris.geyser.extension.packing;
 import net.onebeastchris.geyser.extension.packing.Util.Packs;
 import net.onebeastchris.geyser.extension.packing.Util.PlayerStorage;
 import net.onebeastchris.geyser.extension.packing.Util.choosePacksForm;
-import org.geysermc.api.Geyser;
 import org.geysermc.event.subscribe.Subscribe;
 import org.geysermc.geyser.api.command.Command;
 import org.geysermc.geyser.api.connection.GeyserConnection;
 import org.geysermc.geyser.api.event.bedrock.PlayerResourcePackLoadEvent;
 import org.geysermc.geyser.api.event.lifecycle.GeyserDefineCommandsEvent;
 import org.geysermc.geyser.api.event.lifecycle.GeyserPostInitializeEvent;
-import org.geysermc.geyser.api.event.bedrock.SessionInitializeEvent;
 import org.geysermc.geyser.api.extension.Extension;
 import org.geysermc.geyser.api.extension.ExtensionLogger;
-import org.geysermc.geyser.extension.GeyserExtensionLogger;
-import org.geysermc.geyser.session.GeyserSession;
 
 import java.nio.file.Path;
 import java.util.List;

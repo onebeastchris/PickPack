@@ -4,11 +4,9 @@ package net.onebeastchris.geyser.extension.packing.Util;
 import net.onebeastchris.geyser.extension.packing.packing;
 import org.geysermc.cumulus.component.ToggleComponent;
 import org.geysermc.cumulus.form.CustomForm;
-import org.geysermc.geyser.api.command.CommandSource;
 import org.geysermc.geyser.api.connection.GeyserConnection;
 import org.geysermc.geyser.api.extension.ExtensionLogger;
 import org.geysermc.geyser.api.packs.ResourcePack;
-import org.geysermc.geyser.session.GeyserSession;
 
 import java.util.HashMap;
 import java.util.Map;
