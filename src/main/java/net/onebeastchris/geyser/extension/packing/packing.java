@@ -20,32 +20,30 @@ public class packing implements Extension {
     public static int port = 19132; //TODO: config? or autograb?
     public static String address = "127.0.0.1"; //TODO: config? or autograb?
     public static PlayerStorage storage;
+    public static Path storagePath;
 
     public ExtensionLogger logger;
+
     @SuppressWarnings("unchecked")
     @Subscribe
     public void onPostInitialize(GeyserPostInitializeEvent event) {
         //this.saveDefaultConfig(configPath);
         //var config = ConfigLoader.load(this, packing.class, packking.class);
-        Path packsPath = this.dataFolder().resolve("packsToChoose");
+        Path packsPath = this.dataFolder().resolve("packs");
+        Path optInPath = this.dataFolder().resolve("optIn");
+        Path optOutPath = this.dataFolder().resolve("optOut");
+        storagePath = this.dataFolder().resolve("cache");
 
         logger = this.logger();
 
-        if (!this.dataFolder().toFile().exists()) {
-            this.logger().info("Data folder does not exist, creating...");
-            if (!this.dataFolder().toFile().mkdirs()) {
-                this.logger().error("Failed to create data folder");
-            }
-        }
+        makeDir(packsPath, "root packs");
+        makeDir(optInPath, "opt-in-packs");
+        makeDir(optOutPath, "opt-out-packs");
+        makeDir(storagePath, "storage");
 
-        if (!packsPath.toFile().exists()) {
-            this.logger().info("Packs folder does not exist, creating...");
-            if (!packsPath.toFile().mkdirs()) {
-                this.logger().error("Failed to create packs folder");
-            }
-        }
         packs = new Packs(this.logger());
-        packs.loadPacks(packsPath);
+        packs.loadPacks(optInPath, false);
+        packs.loadPacks(optOutPath, true);
 
         storage = new PlayerStorage(this.logger());
     }
@@ -78,5 +76,15 @@ public class packing implements Extension {
                     form.sendForm((GeyserConnection) source);
                 })
                 .build();
+    }
+
+
+    private void makeDir(Path path, String name) {
+        if (!path.toFile().exists()) {
+            this.logger().info(name + " folder does not exist, creating...");
+            if (!path.toFile().mkdirs()) {
+                this.logger().error("Failed to create " + name + " folder");
+            }
+        }
     }
 }

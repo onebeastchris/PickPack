@@ -2,8 +2,8 @@ package net.onebeastchris.geyser.extension.packing.Util;
 
 import org.geysermc.geyser.api.extension.ExtensionLogger;
 import org.geysermc.geyser.api.packs.ResourcePack;
-import org.geysermc.geyser.pack.ResourcePackUtil;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,20 +15,37 @@ public class Packs {
         this.logger = logger;
     }
 
-    public Map<String, ResourcePack> packsmap = new HashMap<>();
+    public Map<String, ResourcePack> OPT_IN = new HashMap<>();
+    public Map<String, ResourcePack> OPT_OUT = new HashMap<>();
+    public Map<String, String[]> PACKS_INFO = new HashMap<>();
 
-    public Map<String, String> packNamesMap = new HashMap<>();
-    public void loadPacks(Path packsPath) {
+    public void loadPacks(Path path, boolean forcePacks) {
+        Map<String, ResourcePack> packs;
+        if (forcePacks) {
+            packs = OPT_OUT;
+        } else {
+            packs = OPT_IN;
+        }
         try {
-            packsmap = ResourcePackUtil.loadPacksToMap(packsPath);
-            logger.info("Loaded " + packsmap.size() + " packs!");
-            logger.info("Packs: " + packsmap.toString());
-
-            for (Map.Entry<String, ResourcePack> entry : packsmap.entrySet()) {
-                packNamesMap.put(entry.getValue().getManifest().getHeader().getName(), entry.getKey());
+            logger.info("Loaded " + packs.size() + " packs!");
+            for (Map.Entry<String, ResourcePack> entry : packs.entrySet()) {
+                PACKS_INFO.put(
+                        entry.getKey(),
+                        new String[] {
+                                UTF8Loader(entry.getValue().getManifest().getHeader().getName()),
+                                UTF8Loader(entry.getValue().getManifest().getHeader().getDescription()),
+                                UTF8Loader(entry.getValue().getManifest().getHeader().getVersionString()),
+                                String.valueOf(forcePacks)
+                        }
+                );
             }
         } catch (Exception e) {
             logger.error("Failed to load packs!", e);
         }
+    }
+
+    public String UTF8Loader(String weirdString) {
+        byte[] utf8Bytes = weirdString.getBytes(StandardCharsets.UTF_8); // convert to UTF-8 byte array
+        return new String(utf8Bytes, StandardCharsets.UTF_8); // parse the byte array as a UTF-8 encoded string
     }
 }
