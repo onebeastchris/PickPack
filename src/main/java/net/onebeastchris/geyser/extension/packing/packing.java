@@ -11,14 +11,16 @@ import org.geysermc.geyser.api.event.lifecycle.GeyserDefineCommandsEvent;
 import org.geysermc.geyser.api.event.lifecycle.GeyserPostInitializeEvent;
 import org.geysermc.geyser.api.extension.Extension;
 import org.geysermc.geyser.api.extension.ExtensionLogger;
+import org.geysermc.geyser.api.packs.ResourcePack;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 
 public class packing implements Extension {
     public static Packs packs;
     public static int port = 19132; //TODO: config? or autograb?
-    public static String address = "127.0.0.1"; //TODO: config? or autograb?
+    public static String address = "elysianmc.de"; //TODO: config? or autograb?
     public static PlayerStorage storage;
     public static Path storagePath;
 
@@ -50,8 +52,11 @@ public class packing implements Extension {
     @Subscribe
     public void onPlayerResourcePackLoadEvent(PlayerResourcePackLoadEvent event) {
         this.logger.info("Player joined!");
-        event.setPacks(storage.getPacks(event.connection().xuid()));
-        logger().info("Sent packs to player!");
+        var packs = storage.getPacks(event.connection().xuid());
+        event.setPacks(packs);
+        for (Map.Entry<String, ResourcePack> pack : packs.entrySet()) {
+            this.logger.info("Pack added: " + pack.getValue().getManifest().getHeader().getName());
+        }
     }
 
     @Subscribe
@@ -68,7 +73,7 @@ public class packing implements Extension {
                 .description("Choose your own packs")
                 .executableOnConsole(false)
                 .suggestedOpOnly(false)
-                .permission("packking.command.packs")
+                .permission("geyser.packs")
                 .executor((source, command, args) -> {
                     choosePacksForm form = new choosePacksForm(this.logger());
                     form.sendForm((GeyserConnection) source);

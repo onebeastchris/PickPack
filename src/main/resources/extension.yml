@@ -1,5 +1,5 @@
-id: packking
-name: packking
+id: custom
+name: per-player-packs
 main: net.onebeastchris.geyser.extension.packing.packing
 api: 1.0.0
 version: 1.0.1

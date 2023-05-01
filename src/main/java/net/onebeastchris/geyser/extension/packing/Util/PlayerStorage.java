@@ -26,9 +26,12 @@ public class PlayerStorage {
     }
 
     public void setPacks(String xuid, Map<String, ResourcePack> packs) {
-        cache.remove(xuid);
         logger.info("Setting packs for " + xuid);
         cache.put(xuid, packs);
+
+        for (ResourcePack pack : packs.values()) {
+            logger.info("Pack added: " + pack.getManifest().getHeader().getName());
+        }
 
         Executors.newSingleThreadExecutor().execute(() ->
                 FileSaveUtil.save(packs, xuid)
@@ -36,9 +39,7 @@ public class PlayerStorage {
     }
 
     public Map<String, ResourcePack> getPacks(String xuid) {
-        logger.info("Getting packs for " + xuid);
         if (cache.containsKey(xuid)) {
-            logger.info("Found packs for " + xuid);
             return cache.get(xuid);
         } else {
             logger.info("No packs found for " + xuid);
