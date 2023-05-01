@@ -8,6 +8,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.Executors;
 
 import static net.onebeastchris.geyser.extension.packing.packing.packs;
 
@@ -26,15 +27,21 @@ public class PlayerStorage {
 
     public void setPacks(String xuid, Map<String, ResourcePack> packs) {
         cache.remove(xuid);
+        logger.info("Setting packs for " + xuid);
         cache.put(xuid, packs);
-        FileSaveUtil.save(packs, xuid);
+
+        Executors.newSingleThreadExecutor().execute(() ->
+                FileSaveUtil.save(packs, xuid)
+        );
     }
 
     public Map<String, ResourcePack> getPacks(String xuid) {
         logger.info("Getting packs for " + xuid);
         if (cache.containsKey(xuid)) {
+            logger.info("Found packs for " + xuid);
             return cache.get(xuid);
         } else {
+            logger.info("No packs found for " + xuid);
             return packs.OPT_OUT;
         }
     }

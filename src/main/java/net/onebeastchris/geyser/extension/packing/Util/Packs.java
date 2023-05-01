@@ -2,6 +2,7 @@ package net.onebeastchris.geyser.extension.packing.Util;
 
 import org.geysermc.geyser.api.extension.ExtensionLogger;
 import org.geysermc.geyser.api.packs.ResourcePack;
+import org.geysermc.geyser.pack.ResourcePackUtil;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -21,13 +22,16 @@ public class Packs {
 
     public void loadPacks(Path path, boolean forcePacks) {
         Map<String, ResourcePack> packs;
-        if (forcePacks) {
-            packs = OPT_OUT;
-        } else {
-            packs = OPT_IN;
-        }
         try {
-            logger.info("Loaded " + packs.size() + " packs!");
+            packs = ResourcePackUtil.loadPacksToMap(path);
+
+            if (forcePacks) {
+                OPT_OUT = packs;
+                logger.info("Loaded " + packs.size() + " opt-out packs!");
+            } else {
+                OPT_IN = packs;
+                logger.info("Loaded " + packs.size() + " opt-in packs!");
+            }
             for (Map.Entry<String, ResourcePack> entry : packs.entrySet()) {
                 PACKS_INFO.put(
                         entry.getKey(),

@@ -15,8 +15,11 @@ import static net.onebeastchris.geyser.extension.packing.packing.packs;
 public class FileSaveUtil {
 
     public static void save(Map<String, ResourcePack> map, String xuid) {
-        List<StringBoolPair> stringBoolPairs = new ArrayList<>();
         Path filepath = packing.storagePath.resolve(xuid + ".txt");
+        if (filepath.toFile().exists()) {
+            filepath.toFile().delete();
+        }
+        List<StringBoolPair> stringBoolPairs = new ArrayList<>();
         for (Map.Entry<String, ResourcePack> entry : map.entrySet()) {
             String uuid = entry.getKey();
             stringBoolPairs.add(new StringBoolPair(uuid, packs.PACKS_INFO.get(uuid)[3].equals("true")));

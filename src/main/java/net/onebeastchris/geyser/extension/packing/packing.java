@@ -29,14 +29,12 @@ public class packing implements Extension {
     public void onPostInitialize(GeyserPostInitializeEvent event) {
         //this.saveDefaultConfig(configPath);
         //var config = ConfigLoader.load(this, packing.class, packking.class);
-        Path packsPath = this.dataFolder().resolve("packs");
         Path optInPath = this.dataFolder().resolve("optIn");
         Path optOutPath = this.dataFolder().resolve("optOut");
         storagePath = this.dataFolder().resolve("cache");
 
         logger = this.logger();
 
-        makeDir(packsPath, "root packs");
         makeDir(optInPath, "opt-in-packs");
         makeDir(optOutPath, "opt-out-packs");
         makeDir(storagePath, "storage");
