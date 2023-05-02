@@ -33,7 +33,18 @@ public class FileSaveUtil {
         for (StringBoolPair pair : loadedStringBoolPairs) {
             String uuid = pair.getString();
             boolean bool = pair.getBool();
-            map.put(uuid, packs.PACKS_INFO.get(uuid)[3].equals("true") ? packs.OPT_OUT.get(uuid) : packs.OPT_IN.get(uuid));
+            ResourcePack pack = bool ? packs.OPT_OUT.get(uuid) : packs.OPT_IN.get(uuid);
+            if (pack != null) {
+                map.put(uuid, pack);
+            } else {
+                ResourcePack pack2 = !bool ? packs.OPT_OUT.get(uuid) : packs.OPT_IN.get(uuid);
+                if (pack2 != null) {
+                    map.put(uuid, pack2);
+                    packing.storage.logger.debug("Found pack with UUID " + uuid + " in the wrong map! We are still loading it.");
+                } else {
+                    packing.storage.logger.debug("Could not find pack with UUID " + uuid + " in either map! We are not loading it.");
+                }
+            }
         }
         return map;
     }
