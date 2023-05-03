@@ -13,86 +13,54 @@ import java.util.Map;
 import static net.onebeastchris.geyser.extension.packing.packing.packs;
 
 public class FileSaveUtil {
-
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public static void save(Map<String, ResourcePack> map, String xuid) {
         Path filepath = packing.storagePath.resolve(xuid + ".txt");
         if (filepath.toFile().exists()) {
             filepath.toFile().delete();
         }
-        List<StringBoolPair> stringBoolPairs = new ArrayList<>();
+        List<String> packUUIDs = new ArrayList<>();
         for (Map.Entry<String, ResourcePack> entry : map.entrySet()) {
-            String uuid = entry.getKey();
-            stringBoolPairs.add(new StringBoolPair(uuid, packs.PACKS_INFO.get(uuid)[3].equals("true")));
+            packUUIDs.add(entry.getKey());
         }
-        saveStringBoolPairsToFile(stringBoolPairs, filepath);
+        saveToFile(packUUIDs, filepath);
     }
 
     public static Map<String, ResourcePack> load(Path filepath) {
-        List<StringBoolPair> loadedStringBoolPairs = loadStringBoolPairsFromFile(filepath);
+        List<String> packUUIDs = readFromFile(filepath);
         Map<String, ResourcePack> map = new HashMap<>();
-        for (StringBoolPair pair : loadedStringBoolPairs) {
-            String uuid = pair.getString();
-            boolean bool = pair.getBool();
-            ResourcePack pack = bool ? packs.OPT_OUT.get(uuid) : packs.OPT_IN.get(uuid);
-            if (pack != null) {
-                map.put(uuid, pack);
-            } else {
-                ResourcePack pack2 = !bool ? packs.OPT_OUT.get(uuid) : packs.OPT_IN.get(uuid);
-                if (pack2 != null) {
-                    map.put(uuid, pack2);
-                    packing.storage.logger.debug("Found pack with UUID " + uuid + " in the wrong map! We are still loading it.");
+        for (String pack : packUUIDs) {
+            ResourcePack resourcePack = packs.getPack(pack);
+                if (resourcePack != null) {
+                    map.put(pack, resourcePack);
                 } else {
-                    packing.storage.logger.debug("Could not find pack with UUID " + uuid + " in either map! We are not loading it.");
+                    packing.storage.logger.debug("Could not find pack with UUID " + pack + " in either map! We are not loading it.");
                 }
             }
-        }
         return map;
     }
 
-    public static void saveStringBoolPairsToFile(List<StringBoolPair> pairs, Path filepath) {
+    public static void saveToFile(List<String> packs, Path filepath) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filepath.toFile()))) {
-            for (StringBoolPair pair : pairs) {
-                writer.write(pair.getString());
-                writer.write(",");
-                writer.write(Boolean.toString(pair.getBool()));
-                writer.newLine(); // add a newline between pairs
+            for (String pack : packs) {
+                writer.write(pack);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public static List<StringBoolPair> loadStringBoolPairsFromFile(Path filepath) {
-        List<StringBoolPair> pairs = new ArrayList<>();
+    public static List<String> readFromFile(Path filepath) {
+        List<String> packs = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(filepath.toFile()))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(",");
-                String str = parts[0];
-                boolean bool = Boolean.parseBoolean(parts[1]);
-                pairs.add(new StringBoolPair(str, bool));
+                packs.add(line);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return pairs;
+        return packs;
     }
 }
 
-class StringBoolPair {
-    private final String str;
-    private final boolean bool;
-
-    public StringBoolPair(String str, boolean bool) {
-        this.str = str;
-        this.bool = bool;
-    }
-
-    public String getString() {
-        return str;
-    }
-
-    public boolean getBool() {
-        return bool;
-    }
-}

@@ -2,7 +2,7 @@ package net.onebeastchris.geyser.extension.packing;
 
 import net.onebeastchris.geyser.extension.packing.Util.Packs;
 import net.onebeastchris.geyser.extension.packing.Util.PlayerStorage;
-import net.onebeastchris.geyser.extension.packing.Util.choosePacksForm;
+import net.onebeastchris.geyser.extension.packing.Util.Form;
 import org.geysermc.event.subscribe.Subscribe;
 import org.geysermc.geyser.api.command.Command;
 import org.geysermc.geyser.api.connection.GeyserConnection;
@@ -12,6 +12,7 @@ import org.geysermc.geyser.api.event.lifecycle.GeyserPostInitializeEvent;
 import org.geysermc.geyser.api.extension.Extension;
 import org.geysermc.geyser.api.extension.ExtensionLogger;
 import org.geysermc.geyser.api.packs.ResourcePack;
+import org.geysermc.geyser.session.GeyserSession;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -19,8 +20,6 @@ import java.util.Map;
 
 public class packing implements Extension {
     public static Packs packs;
-    public static int port = 19132; //TODO: config? or autograb?
-    public static String address = "elysianmc.de"; //TODO: config? or autograb?
     public static PlayerStorage storage;
     public static Path storagePath;
 
@@ -42,8 +41,7 @@ public class packing implements Extension {
         makeDir(storagePath, "storage");
 
         packs = new Packs(this.logger());
-        packs.loadPacks(optInPath, false);
-        packs.loadPacks(optOutPath, true);
+        packs.loadPacks(optOutPath, optInPath);
 
         storage = new PlayerStorage(this.logger());
     }
@@ -57,6 +55,7 @@ public class packing implements Extension {
         for (Map.Entry<String, ResourcePack> pack : packs.entrySet()) {
             this.logger.info("Pack added: " + pack.getValue().getManifest().getHeader().getName());
         }
+        GeyserSession session = (GeyserSession) event.connection();
     }
 
     @Subscribe
@@ -73,10 +72,10 @@ public class packing implements Extension {
                 .description("Choose your own packs")
                 .executableOnConsole(false)
                 .suggestedOpOnly(false)
-                .permission("geyser.packs")
+                .permission("")
                 .executor((source, command, args) -> {
-                    choosePacksForm form = new choosePacksForm(this.logger());
-                    form.sendForm((GeyserConnection) source);
+                    Form form = new Form(this.logger());
+                    form.send((GeyserConnection) source, args);
                 })
                 .build();
     }

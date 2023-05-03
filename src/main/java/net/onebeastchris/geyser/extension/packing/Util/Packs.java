@@ -20,36 +20,41 @@ public class Packs {
     public Map<String, ResourcePack> OPT_OUT = new HashMap<>();
     public Map<String, String[]> PACKS_INFO = new HashMap<>();
 
-    public void loadPacks(Path path, boolean forcePacks) {
+    public void loadPacks(Path optout, Path optin) {
         Map<String, ResourcePack> packs;
         try {
-            packs = ResourcePackUtil.loadPacksToMap(path);
+            OPT_OUT = ResourcePackUtil.loadPacksToMap(optout);
+            OPT_IN = ResourcePackUtil.loadPacksToMap(optin);
 
-            if (forcePacks) {
-                OPT_OUT = packs;
-                logger.info("Loaded " + packs.size() + " opt-out packs!");
-            } else {
-                OPT_IN = packs;
-                logger.info("Loaded " + packs.size() + " opt-in packs!");
-            }
-            for (Map.Entry<String, ResourcePack> entry : packs.entrySet()) {
-                PACKS_INFO.put(
-                        entry.getKey(),
-                        new String[] {
-                                UTF8Loader(entry.getValue().getManifest().getHeader().getName()),
-                                UTF8Loader(entry.getValue().getManifest().getHeader().getDescription()),
-                                UTF8Loader(entry.getValue().getManifest().getHeader().getVersionString()),
-                                String.valueOf(forcePacks)
-                        }
-                );
-            }
+            loadInfo(OPT_OUT);
+            loadInfo(OPT_IN);
         } catch (Exception e) {
             logger.error("Failed to load packs!", e);
         }
     }
 
+    public ResourcePack getPack(String packUUID) {
+        if (OPT_IN.containsKey(packUUID)) {
+            return OPT_IN.get(packUUID);
+        } else return OPT_OUT.get(packUUID);
+    }
+
     public String UTF8Loader(String weirdString) {
         byte[] utf8Bytes = weirdString.getBytes(StandardCharsets.UTF_8); // convert to UTF-8 byte array
         return new String(utf8Bytes, StandardCharsets.UTF_8); // parse the byte array as a UTF-8 encoded string
+    }
+
+    public void loadInfo(Map<String, ResourcePack> map) {
+        for (Map.Entry<String, ResourcePack> entry : map.entrySet()) {
+            String uuid = entry.getKey();
+            PACKS_INFO.put(
+                    uuid,
+                    new String[] {
+                            UTF8Loader(entry.getValue().getManifest().getHeader().getName()),
+                            UTF8Loader(entry.getValue().getManifest().getHeader().getDescription()),
+                            UTF8Loader(entry.getValue().getManifest().getHeader().getVersionString())
+                    }
+            );
+        }
     }
 }

@@ -46,4 +46,13 @@ public class PlayerStorage {
             return packs.OPT_OUT;
         }
     }
+
+    public boolean hasSpecificPack(String xuid, String uuid) {
+        if (cache.containsKey(xuid)) {
+            return cache.get(xuid).containsKey(uuid);
+        } else {
+            logger.debug("No packs found for " + xuid);
+            return false;
+        }
+    }
 }
