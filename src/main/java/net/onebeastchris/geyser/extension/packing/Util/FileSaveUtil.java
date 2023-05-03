@@ -44,6 +44,7 @@ public class FileSaveUtil {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filepath.toFile()))) {
             for (String pack : packs) {
                 writer.write(pack);
+                writer.newLine();
             }
         } catch (IOException e) {
             e.printStackTrace();

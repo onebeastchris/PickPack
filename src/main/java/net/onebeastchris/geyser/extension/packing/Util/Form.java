@@ -91,7 +91,7 @@ public class Form {
 
             form.optionalToggle(name, currentlyApplied, show);
             if (show) tempMap.put(entry.getValue()[0], entry.getKey());
-            if (description) form.label(entry.getValue()[1]);
+            if (description && show) form.label(entry.getValue()[1]);
         }
 
         form.closedOrInvalidResultHandler((customform, response) -> {
@@ -108,6 +108,15 @@ public class Form {
                     }
                 }
             });
+
+            if (filter.equals(Filter.NOT_APPLIED)) {
+                //keep the old packs if we are filtering for not applied packs
+                for (Map.Entry<String, ResourcePack> entry : packing.storage.getPacks(connection.xuid()).entrySet()) {
+                    if (!playerPacks.containsKey(entry.getKey())) {
+                        playerPacks.put(entry.getKey(), entry.getValue());
+                    }
+                }
+            }
 
             packing.storage.setPacks(connection.xuid(), playerPacks);
 
@@ -127,6 +136,7 @@ public class Form {
 
     private String getPacks(String xuid) {
         StringBuilder packs = new StringBuilder();
+        logger.info(packing.storage.toString());
         for (Map.Entry<String, ResourcePack> entry : packing.storage.getPacks(xuid).entrySet()) {
             String name = entry.getValue().getManifest().getHeader().getName();
             packs.append(" - ").append(name).append("\n");

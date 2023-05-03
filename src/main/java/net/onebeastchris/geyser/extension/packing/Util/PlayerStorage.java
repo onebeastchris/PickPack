@@ -20,8 +20,8 @@ public class PlayerStorage {
         cache = new HashMap<>();
 
         for (File file : Objects.requireNonNull(packing.storagePath.toFile().listFiles())) {
-            logger.info("Loading " + file.getName());
             cache.put(file.getName().replace(".txt", ""), FileSaveUtil.load(file.toPath()));
+            logger.info("Loading " + file.getName());
         }
     }
 

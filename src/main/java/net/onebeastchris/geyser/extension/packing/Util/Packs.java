@@ -28,6 +28,9 @@ public class Packs {
 
             loadInfo(OPT_OUT);
             loadInfo(OPT_IN);
+
+            logger.info("Loaded " + OPT_OUT.size() + " opt-out packs!");
+            logger.info("Loaded " + OPT_IN.size() + " opt-in packs!");
         } catch (Exception e) {
             logger.error("Failed to load packs!", e);
         }

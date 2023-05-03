@@ -44,6 +44,7 @@ public class packing implements Extension {
         packs.loadPacks(optOutPath, optInPath);
 
         storage = new PlayerStorage(this.logger());
+        logger.info("Packing extension loaded!");
     }
 
     //on player join: send packs if we have any for them
