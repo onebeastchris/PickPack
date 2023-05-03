@@ -1,6 +1,6 @@
 ## per-player-packs
 
-###This does not yet work on Geysers master branch.
+### This does not yet work on Geysers master branch.
 
 # This is an extension for Geyser; NOT a plugin/mod. To install it, drop the .jar file in Geyser's extensions folder.
 
