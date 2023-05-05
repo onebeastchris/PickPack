@@ -13,8 +13,9 @@ import org.geysermc.geyser.text.ChatColor;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
-import static net.onebeastchris.geyser.extension.packing.packing.packs;
+import static net.onebeastchris.geyser.extension.packing.packing.loader;
 public class Form {
     public enum Filter {
         APPLIED,
@@ -58,20 +59,29 @@ public class Form {
     public void filterForm(GeyserConnection connection, boolean transferPacket) {
         CustomForm.Builder form = CustomForm.builder()
                 .title("Which packs would you like to see?")
-                .dropdown("Filter", "all packs", "applied packs", "not applied packs")
-                .toggle("Show pack descriptions", true)
                 .closedOrInvalidResultHandler((customform, response) -> {
                     //do nothing
                 });
 
+        if (packing.storage.getPacks(connection.xuid()).isEmpty()) {
+            form.dropdown("Filter", "all packs", "not applied packs");
+        } else {
+            form.dropdown("Filter", "all packs", "not applied packs", "applied packs");
+        }
+
+        form.toggle("Show pack descriptions", true);
+        form.label("If the transfer packet never works for you, you can disable it here.");
+        form.toggle("Use transfer packet", transferPacket);
+
         form.validResultHandler((customform, response) -> {
-            int filterResult  = response.asDropdown();
-            boolean description = response.asToggle();
+            int filterResult  = response.asDropdown(0);
+            boolean description = response.asToggle(1);
+            boolean transfer = response.asToggle(3);
 
             switch (filterResult) {
-                case 1 -> packsForm(connection, transferPacket, description, Filter.APPLIED);
-                case 2 -> packsForm(connection, transferPacket, description, Filter.NOT_APPLIED);
-                default -> packsForm(connection, transferPacket, description, Filter.ALL);
+                case 1 -> packsForm(connection, transfer, description, Filter.NOT_APPLIED);
+                case 2 -> packsForm(connection, transfer, description, Filter.APPLIED);
+                default -> packsForm(connection, transfer, description, Filter.ALL);
             }
         });
         connection.sendForm(form.build());
@@ -82,16 +92,18 @@ public class Form {
         CustomForm.Builder form = CustomForm.builder()
                 .title("Choose your packs");
 
-        form.label("showing " + filter.toString().toLowerCase() + " packs");
+        form.label(ChatColor.BOLD + ChatColor.DARK_GREEN + "showing " +
+                ChatColor.RESET + ChatColor.BOLD + ChatColor.GOLD + filter.toString().toLowerCase().replace("_", " ") +
+                ChatColor.RESET + ChatColor.BOLD + ChatColor.DARK_GREEN + " packs");
 
-        for (Map.Entry<String, String[]> entry : packs.PACKS_INFO.entrySet()) {
+        for (Map.Entry<String, String[]> entry : loader.PACKS_INFO.entrySet()) {
             String name = entry.getValue()[0];
             boolean currentlyApplied = packing.storage.hasSpecificPack(connection.xuid(), entry.getKey());
             boolean show = filter.equals(Filter.ALL) || (filter.equals(Filter.APPLIED) && currentlyApplied) || (filter.equals(Filter.NOT_APPLIED) && !currentlyApplied);
 
             form.optionalToggle(name, currentlyApplied, show);
-            if (show) tempMap.put(entry.getValue()[0], entry.getKey());
-            if (description && show) form.label(entry.getValue()[1]);
+            tempMap.put(entry.getValue()[0], entry.getKey());
+            if (description && show) form.label(ChatColor.ITALIC + entry.getValue()[1] + ChatColor.RESET);
         }
 
         form.closedOrInvalidResultHandler((customform, response) -> {
@@ -103,8 +115,9 @@ public class Form {
             customform.content().forEach((component) -> {
                 if (component instanceof ToggleComponent) {
                     if (Boolean.TRUE.equals(response.next())) {
+                        logger.info("adding pack: " + component.text());
                         String uuid = tempMap.get(component.text());
-                        playerPacks.put(uuid, packs.getPack(uuid));
+                        playerPacks.put(uuid, loader.getPack(uuid));
                     }
                 }
             });
@@ -113,23 +126,24 @@ public class Form {
                 //keep the old packs if we are filtering for not applied packs
                 for (Map.Entry<String, ResourcePack> entry : packing.storage.getPacks(connection.xuid()).entrySet()) {
                     if (!playerPacks.containsKey(entry.getKey())) {
+                        logger.info("adding old pack: " + entry.getValue().getManifest().getHeader().getName());
                         playerPacks.put(entry.getKey(), entry.getValue());
                     }
                 }
             }
 
-            packing.storage.setPacks(connection.xuid(), playerPacks);
-
-            GeyserSession session = (GeyserSession) connection;
-
-            if (transferPacket) {
-                int port = 19132;
-                String address = "127.0.0.1";
-                logger.info("Transferring " + connection.bedrockUsername() + " to " + address + ":" + port);
-                connection.transfer(address, port);
-            } else {
-                session.disconnect(ChatColor.GOLD + "Join back to apply packs!");
-            }
+            CompletableFuture<Void> future = packing.storage.setPacks(connection.xuid(), playerPacks);
+            future.thenRun(() -> {
+                GeyserSession session = (GeyserSession) connection;
+                if (transferPacket) {
+                    int port = 19132;
+                    String address = "elysianmc.de";
+                    logger.info("Transferring " + connection.bedrockUsername() + " to " + address + ":" + port);
+                    connection.transfer(address, port);
+                } else {
+                    session.disconnect(ChatColor.GOLD + "Join back to apply packs!");
+                }
+            });
         });
         connection.sendForm(form);
     }

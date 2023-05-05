@@ -9,10 +9,10 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Packs {
+public class ResourcePackLoader {
 
     ExtensionLogger logger;
-    public Packs(ExtensionLogger logger) {
+    public ResourcePackLoader(ExtensionLogger logger) {
         this.logger = logger;
     }
 
@@ -21,7 +21,6 @@ public class Packs {
     public Map<String, String[]> PACKS_INFO = new HashMap<>();
 
     public void loadPacks(Path optout, Path optin) {
-        Map<String, ResourcePack> packs;
         try {
             OPT_OUT = ResourcePackUtil.loadPacksToMap(optout);
             OPT_IN = ResourcePackUtil.loadPacksToMap(optin);
@@ -50,6 +49,7 @@ public class Packs {
     public void loadInfo(Map<String, ResourcePack> map) {
         for (Map.Entry<String, ResourcePack> entry : map.entrySet()) {
             String uuid = entry.getKey();
+            if (PACKS_INFO.containsKey(uuid)) logger.error("Duplicate pack UUID found! " + uuid + " - used by " + PACKS_INFO.get(uuid)[0] + " and " + entry.getValue().getManifest().getHeader().getName());
             PACKS_INFO.put(
                     uuid,
                     new String[] {

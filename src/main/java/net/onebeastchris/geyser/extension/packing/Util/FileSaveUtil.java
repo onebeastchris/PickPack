@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static net.onebeastchris.geyser.extension.packing.packing.packs;
+import static net.onebeastchris.geyser.extension.packing.packing.loader;
 
 public class FileSaveUtil {
     @SuppressWarnings("ResultOfMethodCallIgnored")
@@ -30,7 +30,7 @@ public class FileSaveUtil {
         List<String> packUUIDs = readFromFile(filepath);
         Map<String, ResourcePack> map = new HashMap<>();
         for (String pack : packUUIDs) {
-            ResourcePack resourcePack = packs.getPack(pack);
+            ResourcePack resourcePack = loader.getPack(pack);
                 if (resourcePack != null) {
                     map.put(pack, resourcePack);
                 } else {
