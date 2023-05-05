@@ -31,7 +31,7 @@ public class Form {
         boolean transferPacket = true;
         //transfer packets sometimes refuse to work... lets give the user the option to disable them
         for (String arg : args) {
-            if (arg.equals("no-transfer") || arg.equals("nt") || arg.equals("n") || arg.equals("kick") || arg.equals("k")) {
+            if (arg.equals("nt") || arg.equals("kick") || arg.equals("k")) {
                 transferPacket = false;
                 break;
             }
@@ -48,11 +48,10 @@ public class Form {
             switch (response.clickedButtonId()) {
                 case 0 -> filterForm(connection, finalTransferPacket);
                 case 1 -> {
-                    //do nothing
+                    //do nothing... they clicked back
                 }
             }
         });
-
         connection.sendForm(form.build());
     }
 
@@ -64,11 +63,10 @@ public class Form {
                 });
 
         if (packing.storage.getPacks(connection.xuid()).isEmpty()) {
-            form.dropdown("Filter", "all packs", "not applied packs");
+            form.dropdown("Filter", "all packs");
         } else {
             form.dropdown("Filter", "all packs", "not applied packs", "applied packs");
         }
-
         form.toggle("Show pack descriptions", true);
         form.label("If the transfer packet never works for you, you can disable it here.");
         form.toggle("Use transfer packet", transferPacket);
@@ -99,15 +97,16 @@ public class Form {
         for (Map.Entry<String, String[]> entry : loader.PACKS_INFO.entrySet()) {
             String name = entry.getValue()[0];
             boolean currentlyApplied = packing.storage.hasSpecificPack(connection.xuid(), entry.getKey());
-            boolean show = filter.equals(Filter.ALL) || (filter.equals(Filter.APPLIED) && currentlyApplied) || (filter.equals(Filter.NOT_APPLIED) && !currentlyApplied);
-
-            form.optionalToggle(name, currentlyApplied, show);
-            tempMap.put(entry.getValue()[0], entry.getKey());
-            if (description && show) form.label(ChatColor.ITALIC + entry.getValue()[1] + ChatColor.RESET);
+            boolean isVisible = filter.equals(Filter.ALL) || (filter.equals(Filter.APPLIED) && currentlyApplied) || (filter.equals(Filter.NOT_APPLIED) && !currentlyApplied);
+            if (isVisible) {
+                form.toggle(name, currentlyApplied);
+                if (description) form.label(ChatColor.ITALIC + entry.getValue()[1] + ChatColor.RESET);
+                tempMap.put(entry.getValue()[0], entry.getKey()); //makes it easier to get the uuid from the name later on
+            }
         }
 
         form.closedOrInvalidResultHandler((customform, response) -> {
-            //do nothing
+            filterForm(connection, transferPacket); //we cant add back buttons. But we can just send the filter form again.
         });
 
         form.validResultHandler((customform, response) -> {
@@ -124,12 +123,7 @@ public class Form {
 
             if (filter.equals(Filter.NOT_APPLIED)) {
                 //keep the old packs if we are filtering for not applied packs
-                for (Map.Entry<String, ResourcePack> entry : packing.storage.getPacks(connection.xuid()).entrySet()) {
-                    if (!playerPacks.containsKey(entry.getKey())) {
-                        logger.info("adding old pack: " + entry.getValue().getManifest().getHeader().getName());
-                        playerPacks.put(entry.getKey(), entry.getValue());
-                    }
-                }
+                playerPacks.putAll(packing.storage.getPacks(connection.xuid()));
             }
 
             CompletableFuture<Void> future = packing.storage.setPacks(connection.xuid(), playerPacks);
@@ -150,7 +144,6 @@ public class Form {
 
     private String getPacks(String xuid) {
         StringBuilder packs = new StringBuilder();
-        logger.info(packing.storage.toString());
         for (Map.Entry<String, ResourcePack> entry : packing.storage.getPacks(xuid).entrySet()) {
             String name = entry.getValue().getManifest().getHeader().getName();
             packs.append(" - ").append(name).append("\n");

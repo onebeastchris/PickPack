@@ -47,12 +47,18 @@ public class packing implements Extension {
     //on player join: send packs if we have any for them
     @Subscribe
     public void onPlayerResourcePackLoadEvent(PlayerResourcePackLoadEvent event) {
-        logger.info("Player " + event.connection().bedrockUsername() + " is loading packs");
         Map<String, ResourcePack> connectionPacks = storage.getPacks(event.connection().xuid());
-        event.setPacks(connectionPacks);
+        StringBuilder loggerInfo = new StringBuilder();
         for (Map.Entry<String, ResourcePack> pack : connectionPacks.entrySet()) {
-            this.logger.info("Pack added: " + pack.getValue().getManifest().getHeader().getName());
+            loggerInfo.append(" ").append(pack.getValue().getManifest().getHeader().getName());
         }
+        logger.info("per-player-packs sends:" + loggerInfo.toString());
+        event.setPacks(connectionPacks);
+        StringBuilder logfinal = new StringBuilder();
+        for (Map.Entry<String, ResourcePack> pack : event.getPacks().entrySet()) {
+            logfinal.append(" ").append(pack.getValue().getManifest().getHeader().getName());
+        }
+        logger.info("Packs on Player: " + logfinal.toString());
     }
 
     @Subscribe

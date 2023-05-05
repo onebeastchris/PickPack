@@ -1,6 +1,7 @@
 package net.onebeastchris.geyser.extension.packing.Util;
 
 import net.onebeastchris.geyser.extension.packing.packing;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.geysermc.geyser.api.packs.ResourcePack;
 
 import java.io.*;
@@ -26,7 +27,7 @@ public class FileSaveUtil {
         saveToFile(packUUIDs, filepath);
     }
 
-    public static Map<String, ResourcePack> load(Path filepath) {
+    public static @NonNull Map<String, ResourcePack> load(Path filepath) {
         List<String> packUUIDs = readFromFile(filepath);
         Map<String, ResourcePack> map = new HashMap<>();
         for (String pack : packUUIDs) {

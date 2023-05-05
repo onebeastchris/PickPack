@@ -1,5 +1,6 @@
 package net.onebeastchris.geyser.extension.packing.Util;
 
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.geysermc.geyser.api.extension.ExtensionLogger;
 import org.geysermc.geyser.api.packs.ResourcePack;
 import org.geysermc.geyser.pack.ResourcePackUtil;

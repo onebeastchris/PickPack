@@ -1,6 +1,7 @@
 package net.onebeastchris.geyser.extension.packing.Util;
 
 import net.onebeastchris.geyser.extension.packing.packing;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.geysermc.geyser.api.extension.ExtensionLogger;
 import org.geysermc.geyser.api.packs.ResourcePack;
 
@@ -12,6 +13,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 
 import static net.onebeastchris.geyser.extension.packing.packing.loader;
+import static net.onebeastchris.geyser.extension.packing.packing.storage;
 
 public class PlayerStorage {
     public Map<String, Map<String, ResourcePack>> cache;
@@ -28,20 +30,21 @@ public class PlayerStorage {
 
     public CompletableFuture<Void> setPacks(String xuid, Map<String, ResourcePack> packs) {
         cache.put(xuid, packs);
+        StringBuilder packsString = new StringBuilder();
         for (ResourcePack pack : packs.values()) {
-            logger.info("Packs added: " + pack.getManifest().getHeader().getName());
+            packsString.append(pack.getManifest().getHeader().getName()).append(" ");
         }
+        logger.info("Saving packs for " + xuid + ": " + packsString.toString());
         Executors.newSingleThreadExecutor().execute(() ->
                 FileSaveUtil.save(packs, xuid)
         );
         return CompletableFuture.completedFuture(null);
     }
 
-    public Map<String, ResourcePack> getPacks(String xuid) {
+    public @NonNull Map<String, ResourcePack> getPacks(String xuid) {
         if (cache.containsKey(xuid)) {
             return cache.get(xuid);
         } else {
-            logger.info("No packs found for " + xuid);
             return loader.OPT_OUT;
         }
     }
@@ -50,8 +53,7 @@ public class PlayerStorage {
         if (cache.containsKey(xuid)) {
             return cache.get(xuid).containsKey(uuid);
         } else {
-            logger.debug("No packs found for " + xuid);
-            return false;
+            return loader.OPT_OUT.containsKey(uuid);
         }
     }
 }
