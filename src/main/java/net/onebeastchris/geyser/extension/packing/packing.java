@@ -1,5 +1,6 @@
 package net.onebeastchris.geyser.extension.packing;
 
+import net.onebeastchris.geyser.extension.packing.Util.FileSaveUtil;
 import net.onebeastchris.geyser.extension.packing.Util.ResourcePackLoader;
 import net.onebeastchris.geyser.extension.packing.Util.PlayerStorage;
 import net.onebeastchris.geyser.extension.packing.Util.Form;
@@ -33,9 +34,9 @@ public class packing implements Extension {
 
         logger = this.logger();
 
-        makeDir(optInPath, "opt-in-packs");
-        makeDir(optOutPath, "opt-out-packs");
-        makeDir(storagePath, "storage");
+        FileSaveUtil.makeDir(optInPath, "opt-in-packs");
+        FileSaveUtil.makeDir(optOutPath, "opt-out-packs");
+        FileSaveUtil.makeDir(storagePath, "storage");
 
         loader = new ResourcePackLoader(this.logger());
         loader.loadPacks(optOutPath, optInPath);
@@ -59,6 +60,7 @@ public class packing implements Extension {
             logfinal.append(" ").append(pack.getValue().getManifest().getHeader().getName());
         }
         logger.info("Packs on Player: " + logfinal.toString());
+        logger.info("Packs on Player: " + event.getPacks().size());
     }
 
     @Subscribe
@@ -81,15 +83,5 @@ public class packing implements Extension {
                     form.send((GeyserConnection) source, args);
                 })
                 .build();
-    }
-
-
-    private void makeDir(Path path, String name) {
-        if (!path.toFile().exists()) {
-            this.logger().info(name + " folder does not exist, creating...");
-            if (!path.toFile().mkdirs()) {
-                this.logger().error("Failed to create " + name + " folder");
-            }
-        }
     }
 }

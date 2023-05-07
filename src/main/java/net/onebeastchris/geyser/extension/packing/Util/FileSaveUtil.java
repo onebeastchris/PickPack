@@ -64,5 +64,14 @@ public class FileSaveUtil {
         }
         return packs;
     }
+
+    public static void makeDir(Path path, String name) {
+        if (!path.toFile().exists()) {
+            packing.storage.logger.info(name + " folder does not exist, creating...");
+            if (!path.toFile().mkdirs()) {
+                packing.storage.logger.error("Failed to create " + name + " folder");
+            }
+        }
+    }
 }
 
