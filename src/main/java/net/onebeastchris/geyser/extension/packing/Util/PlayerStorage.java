@@ -13,7 +13,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 
 import static net.onebeastchris.geyser.extension.packing.packing.loader;
-import static net.onebeastchris.geyser.extension.packing.packing.storage;
 
 public class PlayerStorage {
     public Map<String, Map<String, ResourcePack>> cache;
@@ -32,9 +31,9 @@ public class PlayerStorage {
         cache.put(xuid, packs);
         StringBuilder packsString = new StringBuilder();
         for (ResourcePack pack : packs.values()) {
-            packsString.append(pack.getManifest().getHeader().getName()).append(" ");
+            packsString.append(pack.manifest().header().name()).append(" ");
         }
-        logger.info("Saving packs for " + xuid + ": " + packsString.toString());
+        logger.debug("Saving packs for " + xuid + ": " + packsString);
         Executors.newSingleThreadExecutor().execute(() ->
                 FileSaveUtil.save(packs, xuid)
         );

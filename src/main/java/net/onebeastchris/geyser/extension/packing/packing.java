@@ -7,7 +7,7 @@ import net.onebeastchris.geyser.extension.packing.Util.Form;
 import org.geysermc.event.subscribe.Subscribe;
 import org.geysermc.geyser.api.command.Command;
 import org.geysermc.geyser.api.connection.GeyserConnection;
-import org.geysermc.geyser.api.event.bedrock.PlayerResourcePackLoadEvent;
+import org.geysermc.geyser.api.event.bedrock.SessionLoadResourcePacksEvent;
 import org.geysermc.geyser.api.event.lifecycle.GeyserDefineCommandsEvent;
 import org.geysermc.geyser.api.event.lifecycle.GeyserPostInitializeEvent;
 import org.geysermc.geyser.api.extension.Extension;
@@ -47,25 +47,14 @@ public class packing implements Extension {
 
     //on player join: send packs if we have any for them
     @Subscribe
-    public void onPlayerResourcePackLoadEvent(PlayerResourcePackLoadEvent event) {
+    public void onPlayerResourcePackLoadEvent(SessionLoadResourcePacksEvent event) {
         Map<String, ResourcePack> connectionPacks = storage.getPacks(event.connection().xuid());
-        StringBuilder loggerInfo = new StringBuilder();
-        for (Map.Entry<String, ResourcePack> pack : connectionPacks.entrySet()) {
-            loggerInfo.append(" ").append(pack.getValue().getManifest().getHeader().getName());
-        }
-        logger.info("per-player-packs sends:" + loggerInfo.toString());
-        event.setPacks(connectionPacks);
-        StringBuilder logfinal = new StringBuilder();
-        for (Map.Entry<String, ResourcePack> pack : event.getPacks().entrySet()) {
-            logfinal.append(" ").append(pack.getValue().getManifest().getHeader().getName());
-        }
-        logger.info("Packs on Player: " + logfinal.toString());
-        logger.info("Packs on Player: " + event.getPacks().size());
+        event.packs().putAll(connectionPacks);
     }
 
     @Subscribe
     public void CommandEvent(GeyserDefineCommandsEvent commandsEvent) {
-        logger().info("Registering commands");
+        logger().debug("Registering commands");
         commandsEvent.register(getCommand());
     }
     private Command getCommand() {
@@ -77,7 +66,7 @@ public class packing implements Extension {
                 .description("Choose your own packs")
                 .executableOnConsole(false)
                 .suggestedOpOnly(false)
-                .permission("geyser.packs")
+                .permission("geyser.packs") //blank would be ideal, but those perms are currently broken on proxy setups
                 .executor((source, command, args) -> {
                     Form form = new Form(this.logger());
                     form.send((GeyserConnection) source, args);

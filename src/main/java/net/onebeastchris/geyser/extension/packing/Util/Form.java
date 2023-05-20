@@ -27,26 +27,32 @@ public class Form {
         this.logger = logger;
     }
     public void send(GeyserConnection connection, String... args) {
+        String xuid = connection.xuid();
 
-        boolean transferPacket = true;
-        //transfer packets sometimes refuse to work... lets give the user the option to disable them
-        for (String arg : args) {
-            if (arg.equals("nt") || arg.equals("kick") || arg.equals("k")) {
-                transferPacket = false;
-                break;
+        if (args != null && args.length > 0) {
+            switch (args[0]) {
+                case "filter" -> {
+                    filterForm(connection);
+                    return;
+                }
+                case "remove", "clear" -> {
+                    CompletableFuture<Void> future = packing.storage.setPacks(xuid, new HashMap<>());
+                    future.thenRun(() -> {
+                        handle(connection, true);
+                    });
+                    return;
+                }
             }
         }
-
         ModalForm.Builder form = ModalForm.builder()
-                .title("Your applied packs:")
-                .content(getPacks(connection.xuid()))
+                .title("Your current packs:")
+                .content(getPacks(xuid))
                 .button1("Change packs")
                 .button2("Back");
 
-        boolean finalTransferPacket = transferPacket;
         form.validResultHandler((modalform, response) -> {
             switch (response.clickedButtonId()) {
-                case 0 -> filterForm(connection, finalTransferPacket);
+                case 0 -> filterForm(connection);
                 case 1 -> {
                     //do nothing... they clicked back
                 }
@@ -55,12 +61,9 @@ public class Form {
         connection.sendForm(form.build());
     }
 
-    public void filterForm(GeyserConnection connection, boolean transferPacket) {
+    public void filterForm(GeyserConnection connection) {
         CustomForm.Builder form = CustomForm.builder()
-                .title("Which packs would you like to see?")
-                .closedOrInvalidResultHandler((customform, response) -> {
-                    //do nothing
-                });
+                .title("Which packs would you like to see?");
 
         if (packing.storage.getPacks(connection.xuid()).isEmpty()) {
             form.dropdown("Filter", "all packs");
@@ -69,7 +72,7 @@ public class Form {
         }
         form.toggle("Show pack descriptions", true);
         form.label("If the transfer packet never works for you, you can disable it here.");
-        form.toggle("Use transfer packet", transferPacket);
+        form.toggle("Use transfer packet", true);
 
         form.validResultHandler((customform, response) -> {
             int filterResult  = response.asDropdown(0);
@@ -86,6 +89,7 @@ public class Form {
     }
 
     public void packsForm(GeyserConnection connection, boolean transferPacket, boolean description, Filter filter) {
+        String xuid = connection.xuid();
         Map<String, String> tempMap = new HashMap<>();
         CustomForm.Builder form = CustomForm.builder()
                 .title("Choose your packs");
@@ -96,7 +100,7 @@ public class Form {
 
         for (Map.Entry<String, String[]> entry : loader.PACKS_INFO.entrySet()) {
             String name = entry.getValue()[0];
-            boolean currentlyApplied = packing.storage.hasSpecificPack(connection.xuid(), entry.getKey());
+            boolean currentlyApplied = packing.storage.hasSpecificPack(xuid, entry.getKey());
             boolean isVisible = filter.equals(Filter.ALL) || (filter.equals(Filter.APPLIED) && currentlyApplied) || (filter.equals(Filter.NOT_APPLIED) && !currentlyApplied);
             if (isVisible) {
                 form.toggle(name, currentlyApplied);
@@ -106,7 +110,7 @@ public class Form {
         }
 
         form.closedOrInvalidResultHandler((customform, response) -> {
-            filterForm(connection, transferPacket); //we cant add back buttons. But we can just send the filter form again.
+            filterForm(connection); //we cant add back buttons. But we can just send the filter form again.
         });
 
         form.validResultHandler((customform, response) -> {
@@ -114,7 +118,6 @@ public class Form {
             customform.content().forEach((component) -> {
                 if (component instanceof ToggleComponent) {
                     if (Boolean.TRUE.equals(response.next())) {
-                        logger.info("adding pack: " + component.text());
                         String uuid = tempMap.get(component.text());
                         playerPacks.put(uuid, loader.getPack(uuid));
                     }
@@ -123,21 +126,15 @@ public class Form {
 
             if (filter.equals(Filter.NOT_APPLIED)) {
                 //keep the old packs if we are filtering for not applied packs
-                playerPacks.putAll(packing.storage.getPacks(connection.xuid()));
+                playerPacks.putAll(packing.storage.getPacks(xuid));
             }
 
-            CompletableFuture<Void> future = packing.storage.setPacks(connection.xuid(), playerPacks);
+            CompletableFuture<Void> future = packing.storage.setPacks(xuid, playerPacks);
             future.thenRun(() -> {
-                GeyserSession session = (GeyserSession) connection;
-                if (transferPacket) {
-                    int port = 19132;
-                    String address = "elysianmc.de";
-                    logger.info("Transferring " + connection.bedrockUsername() + " to " + address + ":" + port);
-                    connection.transfer(address, port);
-                } else {
-                    session.disconnect(ChatColor.GOLD + "Join back to apply packs!");
-                }
+                handle(connection, transferPacket);
             });
+
+            tempMap.clear();
         });
         connection.sendForm(form);
     }
@@ -145,10 +142,22 @@ public class Form {
     private String getPacks(String xuid) {
         StringBuilder packs = new StringBuilder();
         for (Map.Entry<String, ResourcePack> entry : packing.storage.getPacks(xuid).entrySet()) {
-            String name = entry.getValue().getManifest().getHeader().getName();
+            String name = entry.getValue().manifest().header().name();
             packs.append(" - ").append(name).append("\n");
         }
         if (packs.length() == 0) packs.append("You have no packs applied that you could remove!");
         return packs.toString();
+    }
+
+    private void handle(GeyserConnection connection, boolean transferPacket) {
+        GeyserSession session = (GeyserSession) connection;
+        if (transferPacket) {
+            int port = 19132;
+            String address = "127.0.0.1"; //TODO: dont hardcode
+            logger.debug("Transferring " + connection.bedrockUsername() + " to " + address + ":" + port);
+            connection.transfer(address, port);
+        } else {
+            session.disconnect(ChatColor.GOLD + "Join back to apply the changes!");
+        }
     }
 }
