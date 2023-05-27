@@ -1,4 +1,4 @@
-## per-player-packs
+## PickPack
 
 ### This does not yet work on Geysers master branch.
 
