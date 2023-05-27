@@ -1,6 +1,6 @@
-package net.onebeastchris.geyser.extension.packing.Util;
+package net.onebeastchris.geyser.extension.pickpack.Util;
 
-import net.onebeastchris.geyser.extension.packing.packing;
+import net.onebeastchris.geyser.extension.pickpack.packing;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.geysermc.geyser.api.extension.ExtensionLogger;
 import org.geysermc.geyser.api.packs.ResourcePack;
@@ -12,7 +12,7 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 
-import static net.onebeastchris.geyser.extension.packing.packing.loader;
+import static net.onebeastchris.geyser.extension.pickpack.packing.loader;
 
 public class PlayerStorage {
     public Map<String, Map<String, ResourcePack>> cache;

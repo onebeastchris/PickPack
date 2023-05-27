@@ -1,7 +1,7 @@
-package net.onebeastchris.geyser.extension.packing.Util;
+package net.onebeastchris.geyser.extension.pickpack.Util;
 
 
-import net.onebeastchris.geyser.extension.packing.packing;
+import net.onebeastchris.geyser.extension.pickpack.packing;
 import org.geysermc.cumulus.component.ToggleComponent;
 import org.geysermc.cumulus.form.CustomForm;
 import org.geysermc.cumulus.form.ModalForm;
@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-import static net.onebeastchris.geyser.extension.packing.packing.loader;
+import static net.onebeastchris.geyser.extension.pickpack.packing.loader;
 public class Form {
     public enum Filter {
         APPLIED,

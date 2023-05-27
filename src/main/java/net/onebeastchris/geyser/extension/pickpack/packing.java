@@ -1,9 +1,9 @@
-package net.onebeastchris.geyser.extension.packing;
+package net.onebeastchris.geyser.extension.pickpack;
 
-import net.onebeastchris.geyser.extension.packing.Util.FileSaveUtil;
-import net.onebeastchris.geyser.extension.packing.Util.ResourcePackLoader;
-import net.onebeastchris.geyser.extension.packing.Util.PlayerStorage;
-import net.onebeastchris.geyser.extension.packing.Util.Form;
+import net.onebeastchris.geyser.extension.pickpack.Util.FileSaveUtil;
+import net.onebeastchris.geyser.extension.pickpack.Util.ResourcePackLoader;
+import net.onebeastchris.geyser.extension.pickpack.Util.PlayerStorage;
+import net.onebeastchris.geyser.extension.pickpack.Util.Form;
 import org.geysermc.event.subscribe.Subscribe;
 import org.geysermc.geyser.api.command.Command;
 import org.geysermc.geyser.api.connection.GeyserConnection;
@@ -42,7 +42,7 @@ public class packing implements Extension {
         loader.loadPacks(optOutPath, optInPath);
 
         storage = new PlayerStorage(this.logger());
-        logger.info("Packing extension loaded!");
+        logger.info("PickPack extension loaded!");
     }
 
     //on player join: send packs if we have any for them

@@ -1,6 +1,6 @@
-id: custom
-name: per-player-packs
-main: net.onebeastchris.geyser.extension.packing.packing
+id: pickpack
+name: PickPack
+main: net.onebeastchris.geyser.extension.pickpack.pickpack
 api: 1.0.0
 version: 1.0.1
 authors: [onebeastchris]

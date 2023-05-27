@@ -1,7 +1,6 @@
-package net.onebeastchris.geyser.extension.packing.Util;
+package net.onebeastchris.geyser.extension.pickpack.Util;
 
-import net.onebeastchris.geyser.extension.packing.packing;
-import org.checkerframework.checker.nullness.qual.NonNull;
+import net.onebeastchris.geyser.extension.pickpack.packing;
 import org.geysermc.geyser.api.packs.ResourcePack;
 
 import java.io.*;
@@ -11,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static net.onebeastchris.geyser.extension.packing.packing.loader;
+import static net.onebeastchris.geyser.extension.pickpack.packing.loader;
 
 public class FileSaveUtil {
     @SuppressWarnings("ResultOfMethodCallIgnored")
@@ -27,7 +26,7 @@ public class FileSaveUtil {
         saveToFile(packUUIDs, filepath);
     }
 
-    public static @NonNull Map<String, ResourcePack> load(Path filepath) {
+    public static Map<String, ResourcePack> load(Path filepath) {
         List<String> packUUIDs = readFromFile(filepath);
         Map<String, ResourcePack> map = new HashMap<>();
         for (String pack : packUUIDs) {

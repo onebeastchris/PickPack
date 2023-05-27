@@ -1,4 +1,4 @@
-package net.onebeastchris.geyser.extension.packing.Util;
+package net.onebeastchris.geyser.extension.pickpack.Util;
 
 import org.geysermc.geyser.api.extension.ExtensionLogger;
 import org.geysermc.geyser.api.packs.ResourcePack;
