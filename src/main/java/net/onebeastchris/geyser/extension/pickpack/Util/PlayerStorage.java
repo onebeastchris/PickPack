@@ -1,6 +1,6 @@
 package net.onebeastchris.geyser.extension.pickpack.Util;
 
-import net.onebeastchris.geyser.extension.pickpack.packing;
+import net.onebeastchris.geyser.extension.pickpack.PickPack;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.geysermc.geyser.api.extension.ExtensionLogger;
 import org.geysermc.geyser.api.packs.ResourcePack;
@@ -12,7 +12,7 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 
-import static net.onebeastchris.geyser.extension.pickpack.packing.loader;
+import static net.onebeastchris.geyser.extension.pickpack.PickPack.loader;
 
 public class PlayerStorage {
     public Map<String, Map<String, ResourcePack>> cache;
@@ -21,7 +21,7 @@ public class PlayerStorage {
         this.logger = logger;
         cache = new HashMap<>();
 
-        for (File file : Objects.requireNonNull(packing.storagePath.toFile().listFiles())) {
+        for (File file : Objects.requireNonNull(PickPack.storagePath.toFile().listFiles())) {
             cache.put(file.getName().replace(".txt", ""), FileSaveUtil.load(file.toPath()));
             logger.debug("Loading " + file.getName());
         }

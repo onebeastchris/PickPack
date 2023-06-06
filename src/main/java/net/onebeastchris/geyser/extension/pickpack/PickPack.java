@@ -18,7 +18,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
-public class packing implements Extension {
+public class PickPack implements Extension {
     public static ResourcePackLoader loader;
     public static PlayerStorage storage;
     public static Path storagePath;

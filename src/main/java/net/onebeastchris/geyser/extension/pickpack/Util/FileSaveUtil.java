@@ -1,6 +1,6 @@
 package net.onebeastchris.geyser.extension.pickpack.Util;
 
-import net.onebeastchris.geyser.extension.pickpack.packing;
+import net.onebeastchris.geyser.extension.pickpack.PickPack;
 import org.geysermc.geyser.api.packs.ResourcePack;
 
 import java.io.*;
@@ -10,12 +10,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static net.onebeastchris.geyser.extension.pickpack.packing.loader;
+import static net.onebeastchris.geyser.extension.pickpack.PickPack.loader;
 
 public class FileSaveUtil {
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public static void save(Map<String, ResourcePack> map, String xuid) {
-        Path filepath = packing.storagePath.resolve(xuid + ".txt");
+        Path filepath = PickPack.storagePath.resolve(xuid + ".txt");
         if (filepath.toFile().exists()) {
             filepath.toFile().delete();
         }
@@ -34,7 +34,7 @@ public class FileSaveUtil {
                 if (resourcePack != null) {
                     map.put(pack, resourcePack);
                 } else {
-                    packing.storage.logger.debug("Could not find pack with UUID " + pack + " in either map! We are not loading it.");
+                    PickPack.storage.logger.debug("Could not find pack with UUID " + pack + " in either map! We are not loading it.");
                 }
             }
         return map;
@@ -66,9 +66,9 @@ public class FileSaveUtil {
 
     public static void makeDir(Path path, String name) {
         if (!path.toFile().exists()) {
-            packing.storage.logger.info(name + " folder does not exist, creating...");
+            PickPack.storage.logger.info(name + " folder does not exist, creating...");
             if (!path.toFile().mkdirs()) {
-                packing.storage.logger.error("Failed to create " + name + " folder");
+                PickPack.storage.logger.error("Failed to create " + name + " folder");
             }
         }
     }

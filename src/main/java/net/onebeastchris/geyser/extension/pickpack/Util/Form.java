@@ -1,7 +1,7 @@
 package net.onebeastchris.geyser.extension.pickpack.Util;
 
 
-import net.onebeastchris.geyser.extension.pickpack.packing;
+import net.onebeastchris.geyser.extension.pickpack.PickPack;
 import org.geysermc.cumulus.component.ToggleComponent;
 import org.geysermc.cumulus.form.CustomForm;
 import org.geysermc.cumulus.form.ModalForm;
@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-import static net.onebeastchris.geyser.extension.pickpack.packing.loader;
+import static net.onebeastchris.geyser.extension.pickpack.PickPack.loader;
 public class Form {
     public enum Filter {
         APPLIED,
@@ -36,7 +36,7 @@ public class Form {
                     return;
                 }
                 case "remove", "clear" -> {
-                    CompletableFuture<Void> future = packing.storage.setPacks(xuid, new HashMap<>());
+                    CompletableFuture<Void> future = PickPack.storage.setPacks(xuid, new HashMap<>());
                     future.thenRun(() -> {
                         handle(connection, true);
                     });
@@ -65,7 +65,7 @@ public class Form {
         CustomForm.Builder form = CustomForm.builder()
                 .title("Which packs would you like to see?");
 
-        if (packing.storage.getPacks(connection.xuid()).isEmpty()) {
+        if (PickPack.storage.getPacks(connection.xuid()).isEmpty()) {
             form.dropdown("Filter", "all packs");
         } else {
             form.dropdown("Filter", "all packs", "not applied packs", "applied packs");
@@ -100,7 +100,7 @@ public class Form {
 
         for (Map.Entry<String, String[]> entry : loader.PACKS_INFO.entrySet()) {
             String name = entry.getValue()[0];
-            boolean currentlyApplied = packing.storage.hasSpecificPack(xuid, entry.getKey());
+            boolean currentlyApplied = PickPack.storage.hasSpecificPack(xuid, entry.getKey());
             boolean isVisible = filter.equals(Filter.ALL) || (filter.equals(Filter.APPLIED) && currentlyApplied) || (filter.equals(Filter.NOT_APPLIED) && !currentlyApplied);
             if (isVisible) {
                 form.toggle(name, currentlyApplied);
@@ -126,10 +126,10 @@ public class Form {
 
             if (filter.equals(Filter.NOT_APPLIED)) {
                 //keep the old packs if we are filtering for not applied packs
-                playerPacks.putAll(packing.storage.getPacks(xuid));
+                playerPacks.putAll(PickPack.storage.getPacks(xuid));
             }
 
-            CompletableFuture<Void> future = packing.storage.setPacks(xuid, playerPacks);
+            CompletableFuture<Void> future = PickPack.storage.setPacks(xuid, playerPacks);
             future.thenRun(() -> {
                 handle(connection, transferPacket);
             });
@@ -141,7 +141,7 @@ public class Form {
 
     private String getPacks(String xuid) {
         StringBuilder packs = new StringBuilder();
-        for (Map.Entry<String, ResourcePack> entry : packing.storage.getPacks(xuid).entrySet()) {
+        for (Map.Entry<String, ResourcePack> entry : PickPack.storage.getPacks(xuid).entrySet()) {
             String name = entry.getValue().manifest().header().name();
             packs.append(" - ").append(name).append("\n");
         }
