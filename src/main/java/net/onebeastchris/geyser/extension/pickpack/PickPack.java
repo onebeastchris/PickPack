@@ -12,7 +12,7 @@ import org.geysermc.geyser.api.event.lifecycle.GeyserDefineCommandsEvent;
 import org.geysermc.geyser.api.event.lifecycle.GeyserPostInitializeEvent;
 import org.geysermc.geyser.api.extension.Extension;
 import org.geysermc.geyser.api.extension.ExtensionLogger;
-import org.geysermc.geyser.api.packs.ResourcePack;
+import org.geysermc.geyser.api.pack.ResourcePack;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -22,8 +22,7 @@ public class PickPack implements Extension {
     public static ResourcePackLoader loader;
     public static PlayerStorage storage;
     public static Path storagePath;
-
-    public ExtensionLogger logger;
+    public static ExtensionLogger logger;
 
     @SuppressWarnings("unchecked")
     @Subscribe
@@ -38,10 +37,10 @@ public class PickPack implements Extension {
         FileSaveUtil.makeDir(optOutPath, "opt-out-packs");
         FileSaveUtil.makeDir(storagePath, "storage");
 
+        storage = new PlayerStorage();
         loader = new ResourcePackLoader(this.logger());
         loader.loadPacks(optOutPath, optInPath);
 
-        storage = new PlayerStorage(this.logger());
         logger.info("PickPack extension loaded!");
     }
 

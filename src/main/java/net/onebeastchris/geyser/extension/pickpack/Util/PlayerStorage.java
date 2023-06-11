@@ -3,7 +3,7 @@ package net.onebeastchris.geyser.extension.pickpack.Util;
 import net.onebeastchris.geyser.extension.pickpack.PickPack;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.geysermc.geyser.api.extension.ExtensionLogger;
-import org.geysermc.geyser.api.packs.ResourcePack;
+import org.geysermc.geyser.api.pack.ResourcePack;
 
 import java.io.File;
 import java.util.HashMap;
@@ -13,12 +13,11 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 
 import static net.onebeastchris.geyser.extension.pickpack.PickPack.loader;
+import static net.onebeastchris.geyser.extension.pickpack.PickPack.logger;
 
 public class PlayerStorage {
     public Map<String, Map<String, ResourcePack>> cache;
-    ExtensionLogger logger;
-    public PlayerStorage(ExtensionLogger logger) {
-        this.logger = logger;
+    public PlayerStorage() {
         cache = new HashMap<>();
 
         for (File file : Objects.requireNonNull(PickPack.storagePath.toFile().listFiles())) {

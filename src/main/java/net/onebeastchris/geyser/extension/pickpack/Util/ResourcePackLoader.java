@@ -1,10 +1,12 @@
 package net.onebeastchris.geyser.extension.pickpack.Util;
 
 import org.geysermc.geyser.api.extension.ExtensionLogger;
-import org.geysermc.geyser.api.packs.ResourcePack;
+import org.geysermc.geyser.api.pack.PackCodec;
+import org.geysermc.geyser.api.pack.ResourcePack;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -42,7 +44,7 @@ public class ResourcePackLoader {
         HashMap<String, ResourcePack> packs = new HashMap<>();
         for (File file : Objects.requireNonNull(path.toFile().listFiles())) {
             try {
-                ResourcePack pack = ResourcePack.fromPath(file.toPath());
+                ResourcePack pack = ResourcePack.create(PackCodec.path(file.toPath()));
                 String uuid = pack.manifest().header().uuid().toString();
                 packs.put(uuid, pack);
 

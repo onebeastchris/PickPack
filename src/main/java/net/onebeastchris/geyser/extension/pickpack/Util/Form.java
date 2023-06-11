@@ -5,9 +5,10 @@ import net.onebeastchris.geyser.extension.pickpack.PickPack;
 import org.geysermc.cumulus.component.ToggleComponent;
 import org.geysermc.cumulus.form.CustomForm;
 import org.geysermc.cumulus.form.ModalForm;
+import org.geysermc.geyser.api.GeyserApi;
 import org.geysermc.geyser.api.connection.GeyserConnection;
 import org.geysermc.geyser.api.extension.ExtensionLogger;
-import org.geysermc.geyser.api.packs.ResourcePack;
+import org.geysermc.geyser.api.pack.ResourcePack;
 import org.geysermc.geyser.session.GeyserSession;
 import org.geysermc.geyser.text.ChatColor;
 
@@ -152,8 +153,11 @@ public class Form {
     private void handle(GeyserConnection connection, boolean transferPacket) {
         GeyserSession session = (GeyserSession) connection;
         if (transferPacket) {
-            int port = 19132;
-            String address = "127.0.0.1"; //TODO: dont hardcode
+            int port = GeyserApi.api().bedrockListener().port();
+            String configAddress = GeyserApi.api().bedrockListener().address();
+            // transferring to 0.0.0.0 would not work, so we use the default remote server address instead
+            // unless address is not 0.0.0.0, then we use that
+            String address = configAddress.equals("0.0.0.0") ? GeyserApi.api().defaultRemoteServer().address() : configAddress;
             logger.debug("Transferring " + connection.bedrockUsername() + " to " + address + ":" + port);
             connection.transfer(address, port);
         } else {
