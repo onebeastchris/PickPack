@@ -49,7 +49,7 @@ public class ResourcePackLoader {
                 PACKS_INFO.put(uuid, new String[] {
                         pack.manifest().header().name(),
                         pack.manifest().header().description(),
-                        pack.manifest().header().versionString()
+                        pack.manifest().header().version().toString()
                 });
             } catch (Exception e) {
                 logger.error("Failed to load pack " + file.getName(), e);

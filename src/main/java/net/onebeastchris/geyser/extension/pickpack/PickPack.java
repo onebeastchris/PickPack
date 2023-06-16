@@ -68,7 +68,5 @@ public class PickPack implements Extension {
                     form.send((GeyserConnection) source, args);
                 })
                 .build());
-
-        commandsEvent.register(Command.builder(this).name("AI").build());
     }
 }
