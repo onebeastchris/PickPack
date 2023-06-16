@@ -1,26 +1,24 @@
 package net.onebeastchris.geyser.extension.pickpack.Util;
 
-import org.geysermc.geyser.api.extension.ExtensionLogger;
 import org.geysermc.geyser.api.pack.PackCodec;
 import org.geysermc.geyser.api.pack.ResourcePack;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import static net.onebeastchris.geyser.extension.pickpack.PickPack.logger;
+
 public class ResourcePackLoader {
-
-    ExtensionLogger logger;
-    public ResourcePackLoader(ExtensionLogger logger) {
-        this.logger = logger;
-    }
-
     public Map<String, ResourcePack> OPT_IN = new HashMap<>();
     public Map<String, ResourcePack> OPT_OUT = new HashMap<>();
     public Map<String, String[]> PACKS_INFO = new HashMap<>();
+
+    public ResourcePackLoader(Path optOutPath, Path optInPath) {
+        loadPacks(optOutPath, optInPath);
+    }
 
     public void loadPacks(Path optout, Path optin) {
         try {

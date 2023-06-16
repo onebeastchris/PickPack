@@ -7,25 +7,26 @@ import org.geysermc.cumulus.form.CustomForm;
 import org.geysermc.cumulus.form.ModalForm;
 import org.geysermc.geyser.api.GeyserApi;
 import org.geysermc.geyser.api.connection.GeyserConnection;
-import org.geysermc.geyser.api.extension.ExtensionLogger;
 import org.geysermc.geyser.api.pack.ResourcePack;
 import org.geysermc.geyser.session.GeyserSession;
 import org.geysermc.geyser.text.ChatColor;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import static net.onebeastchris.geyser.extension.pickpack.PickPack.loader;
+import static net.onebeastchris.geyser.extension.pickpack.PickPack.logger;
+
 public class Form {
     public enum Filter {
         APPLIED,
         NOT_APPLIED,
         ALL
     }
-    ExtensionLogger logger;
-    public Form(ExtensionLogger logger) {
-        this.logger = logger;
+    public Form() {
     }
     public void send(GeyserConnection connection, String... args) {
         String xuid = connection.xuid();
@@ -37,10 +38,8 @@ public class Form {
                     return;
                 }
                 case "remove", "clear" -> {
-                    CompletableFuture<Void> future = PickPack.storage.setPacks(xuid, new HashMap<>());
-                    future.thenRun(() -> {
-                        handle(connection, true);
-                    });
+                    CompletableFuture<Void> future = PickPack.storage.setPacks(xuid, new ArrayList<>());
+                    future.thenRun(() -> handle(connection, true));
                     return;
                 }
             }
@@ -115,25 +114,23 @@ public class Form {
         });
 
         form.validResultHandler((customform, response) -> {
-            Map<String, ResourcePack> playerPacks = new HashMap<>();
+            List<ResourcePack> playerPacks = new ArrayList<>();
             customform.content().forEach((component) -> {
                 if (component instanceof ToggleComponent) {
                     if (Boolean.TRUE.equals(response.next())) {
                         String uuid = tempMap.get(component.text());
-                        playerPacks.put(uuid, loader.getPack(uuid));
+                        playerPacks.add(loader.getPack(uuid));
                     }
                 }
             });
 
             if (filter.equals(Filter.NOT_APPLIED)) {
                 //keep the old packs if we are filtering for not applied packs
-                playerPacks.putAll(PickPack.storage.getPacks(xuid));
+                playerPacks.addAll(PickPack.storage.getPacks(xuid));
             }
 
             CompletableFuture<Void> future = PickPack.storage.setPacks(xuid, playerPacks);
-            future.thenRun(() -> {
-                handle(connection, transferPacket);
-            });
+            future.thenRun(() -> handle(connection, transferPacket));
 
             tempMap.clear();
         });
@@ -142,8 +139,8 @@ public class Form {
 
     private String getPacks(String xuid) {
         StringBuilder packs = new StringBuilder();
-        for (Map.Entry<String, ResourcePack> entry : PickPack.storage.getPacks(xuid).entrySet()) {
-            String name = entry.getValue().manifest().header().name();
+        for (ResourcePack pack : PickPack.storage.getPacks(xuid)) {
+            String name = pack.manifest().header().name();
             packs.append(" - ").append(name).append("\n");
         }
         if (packs.length() == 0) packs.append("You have no packs applied that you could remove!");

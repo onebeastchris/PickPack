@@ -6,39 +6,37 @@ import org.geysermc.geyser.api.pack.ResourcePack;
 import java.io.*;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static net.onebeastchris.geyser.extension.pickpack.PickPack.loader;
 import static net.onebeastchris.geyser.extension.pickpack.PickPack.logger;
 
 public class FileSaveUtil {
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    public static void save(Map<String, ResourcePack> map, String xuid) {
+    public static void save(List<ResourcePack> list, String xuid) {
         Path filepath = PickPack.storagePath.resolve(xuid + ".txt");
         if (filepath.toFile().exists()) {
             filepath.toFile().delete();
         }
         List<String> packUUIDs = new ArrayList<>();
-        for (Map.Entry<String, ResourcePack> entry : map.entrySet()) {
-            packUUIDs.add(entry.getKey());
+        for (ResourcePack pack : list) {
+            packUUIDs.add(pack.manifest().header().uuid().toString());
         }
         saveToFile(packUUIDs, filepath);
     }
 
-    public static Map<String, ResourcePack> load(Path filepath) {
+    public static List<ResourcePack> load(Path filepath) {
         List<String> packUUIDs = readFromFile(filepath);
-        Map<String, ResourcePack> map = new HashMap<>();
+        List<ResourcePack> list = new ArrayList<>();
         for (String pack : packUUIDs) {
             ResourcePack resourcePack = loader.getPack(pack);
                 if (resourcePack != null) {
-                    map.put(pack, resourcePack);
+                    list.add(resourcePack);
                 } else {
-                    logger.debug("Could not find pack with UUID " + pack + " in either map! We are not loading it.");
+                    logger.debug("Could not find pack with UUID " + pack + " in either folder! We are not loading it.");
                 }
             }
-        return map;
+        return list;
     }
 
     public static void saveToFile(List<String> packs, Path filepath) {

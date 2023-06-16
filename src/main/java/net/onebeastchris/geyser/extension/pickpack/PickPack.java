@@ -16,7 +16,6 @@ import org.geysermc.geyser.api.pack.ResourcePack;
 
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 
 public class PickPack implements Extension {
     public static ResourcePackLoader loader;
@@ -24,7 +23,6 @@ public class PickPack implements Extension {
     public static Path storagePath;
     public static ExtensionLogger logger;
 
-    @SuppressWarnings("unchecked")
     @Subscribe
     public void onPostInitialize(GeyserPostInitializeEvent event) {
         Path optInPath = this.dataFolder().resolve("optIn");
@@ -37,9 +35,8 @@ public class PickPack implements Extension {
         FileSaveUtil.makeDir(optOutPath, "opt-out-packs");
         FileSaveUtil.makeDir(storagePath, "storage");
 
+        loader = new ResourcePackLoader(optOutPath, optInPath);
         storage = new PlayerStorage();
-        loader = new ResourcePackLoader(this.logger());
-        loader.loadPacks(optOutPath, optInPath);
 
         logger.info("PickPack extension loaded!");
     }
@@ -47,17 +44,17 @@ public class PickPack implements Extension {
     //on player join: send packs if we have any for them
     @Subscribe
     public void onPlayerResourcePackLoadEvent(SessionLoadResourcePacksEvent event) {
-        Map<String, ResourcePack> connectionPacks = storage.getPacks(event.connection().xuid());
-        event.packs().putAll(connectionPacks);
+        logger.info("Sending packs to " + event.connection().xuid());
+        List<ResourcePack> connectionPacks = storage.getPacks(event.connection().xuid());
+        for (ResourcePack pack : connectionPacks) {
+            event.register(pack);
+        }
     }
 
     @Subscribe
     public void CommandEvent(GeyserDefineCommandsEvent commandsEvent) {
-        logger().debug("Registering commands");
-        commandsEvent.register(getCommand());
-    }
-    private Command getCommand() {
-        return Command.builder(this)
+        logger().info("Registering commands");
+        commandsEvent.register(Command.builder(this)
                 .name("packs")
                 .aliases(List.of("rp", "resourcepack", "pack"))
                 .bedrockOnly(true)
@@ -65,11 +62,13 @@ public class PickPack implements Extension {
                 .description("Choose your own packs")
                 .executableOnConsole(false)
                 .suggestedOpOnly(false)
-                .permission("geyser.packs") //blank would be ideal, but those perms are currently broken on proxy setups
+                .permission("") //blank would be ideal, but those perms are currently broken on proxy setups
                 .executor((source, command, args) -> {
-                    Form form = new Form(this.logger());
+                    Form form = new Form();
                     form.send((GeyserConnection) source, args);
                 })
-                .build();
+                .build());
+
+        commandsEvent.register(Command.builder(this).name("AI").build());
     }
 }
