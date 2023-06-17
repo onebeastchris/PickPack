@@ -1,5 +1,9 @@
 ## PickPack
 
+[![GitHub release](https://img.shields.io/github/release/onebeastchris/PickPack?include_prereleases=&sort=semver&color=yellowgreen)](https://github.com/onebeastchris/PickPack/releases/)
+[![License](https://img.shields.io/badge/License-MIT-yellowgreen)](https://github.com/onebeastchris/PickPack/blob/main/LICENSE)
+[![issues - PickPack](https://img.shields.io/github/issues/onebeastchris/PickPack)](https://github.com/onebeastchris/PickPack/issues)
+
 PickPack allows you to give each of your Geyser players the option to toggle bedrock resource packs on or off. Unfortunately, due to how Bedrock works, a reconnect is necessary - but done seamlessly.
 This can be useful for console players that cannot easily install resource packs, such as consoles - or to just allow each player to customize what pack to use.
 
