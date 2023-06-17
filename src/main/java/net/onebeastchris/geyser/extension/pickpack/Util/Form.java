@@ -38,7 +38,7 @@ public class Form {
                     return;
                 }
                 case "remove", "clear" -> {
-                    CompletableFuture<Void> future = PickPack.storage.setPacks(xuid, new ArrayList<>());
+                    CompletableFuture<Void> future = PickPack.storage.setPacks(xuid, new ArrayList<>(loader.OPT_OUT.values()));
                     future.thenRun(() -> handle(connection, true));
                     return;
                 }

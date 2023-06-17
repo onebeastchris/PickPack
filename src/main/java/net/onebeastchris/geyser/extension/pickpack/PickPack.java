@@ -55,17 +55,32 @@ public class PickPack implements Extension {
     public void CommandEvent(GeyserDefineCommandsEvent commandsEvent) {
         logger().info("Registering commands");
         commandsEvent.register(Command.builder(this)
-                .name("packs")
-                .aliases(List.of("rp", "resourcepack", "pack"))
+                .name("menu")
+                .aliases(List.of("list"))
                 .bedrockOnly(true)
                 .source(GeyserConnection.class)
                 .description("Choose your own packs")
                 .executableOnConsole(false)
                 .suggestedOpOnly(false)
-                .permission("") //blank would be ideal, but those perms are currently broken on proxy setups
+                .permission("")
                 .executor((source, command, args) -> {
                     Form form = new Form();
                     form.send((GeyserConnection) source, args);
+                })
+                .build());
+
+        commandsEvent.register(Command.builder(this)
+                .name("reset")
+                .aliases(List.of("default"))
+                .bedrockOnly(true)
+                .source(GeyserConnection.class)
+                .description("Apply only default packs")
+                .executableOnConsole(false)
+                .suggestedOpOnly(false)
+                .permission("")
+                .executor((source, command, args) -> {
+                    Form form = new Form();
+                    form.send((GeyserConnection) source, "clear");
                 })
                 .build());
     }
