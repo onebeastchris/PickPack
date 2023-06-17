@@ -1,6 +1,6 @@
 ## PickPack
 
-PickPack allows you to give each of your Geyser players the option to toggle specific packs on or off.
+PickPack allows you to give each of your Geyser players the option to toggle bedrock resource packs on or off. Unfortunately, due to how Bedrock works, a reconnect is necessary - but done seamlessly.
 This can be useful for console players that cannot easily install resource packs, such as consoles - or to just allow each player to customize what pack to use.
 
 **IMPORTANT: This ONLY works on Geyser with the version #193 or higher. If you are using an older version, please update Geyser.**
@@ -9,6 +9,8 @@ Examples:
 - Setup invisible item frames using resource packs, and allow players to toggle them on or off.
 - Give console players the option to use a resource pack, or not.
 - Add a pack to e.g. show chunk borders - that can be easily toggled on and off.
+
+https://youtu.be/VImgD_DCC1Q
 
 ### This is an extension for Geyser; NOT a plugin/mod. To install it, drop the .jar file in Geyser's extensions folder.
 
