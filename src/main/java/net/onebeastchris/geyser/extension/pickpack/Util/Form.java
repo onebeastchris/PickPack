@@ -1,11 +1,9 @@
 package net.onebeastchris.geyser.extension.pickpack.Util;
 
-
 import net.onebeastchris.geyser.extension.pickpack.PickPack;
 import org.geysermc.cumulus.component.ToggleComponent;
 import org.geysermc.cumulus.form.CustomForm;
 import org.geysermc.cumulus.form.ModalForm;
-import org.geysermc.geyser.api.GeyserApi;
 import org.geysermc.geyser.api.connection.GeyserConnection;
 import org.geysermc.geyser.api.pack.ResourcePack;
 import org.geysermc.geyser.session.GeyserSession;
@@ -17,8 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+import static net.onebeastchris.geyser.extension.pickpack.PickPack.config;
 import static net.onebeastchris.geyser.extension.pickpack.PickPack.loader;
-import static net.onebeastchris.geyser.extension.pickpack.PickPack.logger;
 
 public class Form {
     public enum Filter {
@@ -37,7 +35,7 @@ public class Form {
                     filterForm(connection);
                     return;
                 }
-                case "remove", "clear" -> {
+                case "clear" -> {
                     CompletableFuture<Void> future = PickPack.storage.setPacks(xuid, new ArrayList<>(loader.OPT_OUT.values()));
                     future.thenRun(() -> handle(connection, true));
                     return;
@@ -45,10 +43,10 @@ public class Form {
             }
         }
         ModalForm.Builder form = ModalForm.builder()
-                .title("Your current packs:")
+                .title(config.translations().mainMenuTitle())
                 .content(getPacks(xuid))
-                .button1("Change packs")
-                .button2("Back");
+                .button1(config.translations().mainMenuChangeButton())
+                .button2(config.translations().mainMenuBackButton());
 
         form.validResultHandler((modalform, response) -> {
             switch (response.clickedButtonId()) {
@@ -63,16 +61,19 @@ public class Form {
 
     public void filterForm(GeyserConnection connection) {
         CustomForm.Builder form = CustomForm.builder()
-                .title("Which packs would you like to see?");
+                .title(config.translations().filterFormTitle());
 
         if (PickPack.storage.getPacks(connection.xuid()).isEmpty()) {
-            form.dropdown("Filter", "all packs");
+            form.dropdown(config.translations().filterButtonName(), config.translations().filterAllPacks());
         } else {
-            form.dropdown("Filter", "all packs", "not applied packs", "applied packs");
+            form.dropdown(config.translations().filterButtonName(),
+                    config.translations().filterAllPacks(),
+                    config.translations().filterNotAppliedPacks(),
+                    config.translations().filterAppliedPacks());
         }
-        form.toggle("Show pack descriptions", true);
-        form.label("If the transfer packet never works for you, you can disable it here.");
-        form.toggle("Use transfer packet", true);
+        form.toggle(config.translations().filterDescriptionToggle(), config.showPackDescription());
+        form.label(config.translations().filterTransferWarning());
+        form.toggle(config.translations().filterTransferToggle(), config.useTransferPacket());
 
         form.validResultHandler((customform, response) -> {
             int filterResult  = response.asDropdown(0);
@@ -92,11 +93,9 @@ public class Form {
         String xuid = connection.xuid();
         Map<String, String> tempMap = new HashMap<>();
         CustomForm.Builder form = CustomForm.builder()
-                .title("Choose your packs");
+                .title(config.translations().packFormTitle());
 
-        form.label(ChatColor.BOLD + ChatColor.DARK_GREEN + "showing " +
-                ChatColor.RESET + ChatColor.BOLD + ChatColor.GOLD + filter.toString().toLowerCase().replace("_", " ") +
-                ChatColor.RESET + ChatColor.BOLD + ChatColor.DARK_GREEN + " packs");
+        form.label( config.translations().packFormLabel().replace("%filter%", getFilterType(filter)));
 
         for (Map.Entry<String, String[]> entry : loader.PACKS_INFO.entrySet()) {
             String name = entry.getValue()[0];
@@ -143,22 +142,24 @@ public class Form {
             String name = pack.manifest().header().name();
             packs.append(" - ").append(name).append("\n");
         }
-        if (packs.length() == 0) packs.append("You have no packs applied that you could remove!");
+        if (packs.length() == 0) packs.append(config.translations().noPacksWarning());
         return packs.toString();
     }
 
     private void handle(GeyserConnection connection, boolean transferPacket) {
         GeyserSession session = (GeyserSession) connection;
         if (transferPacket) {
-            int port = GeyserApi.api().bedrockListener().port();
-            String configAddress = GeyserApi.api().bedrockListener().address();
-            // transferring to 0.0.0.0 would not work, so we use the default remote server address instead
-            // unless address is not 0.0.0.0, then we use that
-            String address = configAddress.equals("0.0.0.0") ? GeyserApi.api().defaultRemoteServer().address() : configAddress;
-            logger.debug("Transferring " + connection.bedrockUsername() + " to " + address + ":" + port);
-            connection.transfer(address, port);
+            connection.transfer(config.address(), config.port());
         } else {
-            session.disconnect(ChatColor.GOLD + "Join back to apply the changes!");
+            session.disconnect(config.translations().disconnectMessage());
         }
+    }
+
+    private String getFilterType(Filter filter) {
+        return switch (filter) {
+            case ALL -> config.translations().filterAllPacks();
+            case APPLIED -> config.translations().filterAppliedPacks();
+            case NOT_APPLIED -> config.translations().filterNotAppliedPacks();
+        };
     }
 }

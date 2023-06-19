@@ -1,6 +1,7 @@
 plugins {
     id 'java-library'
     id 'java'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 group 'net.onebeastchris.geyser.extension'
@@ -26,12 +27,29 @@ repositories {
 }
 
 dependencies {
-    api('org.geysermc.geyser:core:2.1.1-SNAPSHOT') {
+    compileOnly('org.geysermc.geyser:core:2.1.1-SNAPSHOT') {
         exclude group: 'io.netty'
     }
-    api 'org.geysermc.geyser:api:2.1.1-SNAPSHOT'
+    compileOnly('org.geysermc.geyser:api:2.1.1-SNAPSHOT')
+
+    api('com.fasterxml.jackson.core:jackson-annotations:2.15.1')
+    api('com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.1')
+    api('com.fasterxml.jackson.core:jackson-core:2.15.1')
 }
 
 test {
     useJUnitPlatform()
+}
+
+jar {
+    archiveClassifier.set("unshaded")
+}
+
+// Output to build/libs/shadow.jar
+shadowJar {
+    archiveBaseName.set('pickpack')
+    archiveClassifier.set('')
+
+    relocate('com.fasterxml.jackson', 'net.onebeastchris.extension.pickpack.jackson')
+    relocate('org.yaml', 'net.onebeastchris.extension.pickpack.yaml')
 }

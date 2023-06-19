@@ -20,6 +20,13 @@ public class ResourcePackLoader {
         loadPacks(optOutPath, optInPath);
     }
 
+    public void reload(Path optOutPath, Path optInPath) {
+        OPT_OUT.clear();
+        OPT_IN.clear();
+        PACKS_INFO.clear();
+        loadPacks(optOutPath, optInPath);
+    }
+
     public void loadPacks(Path optout, Path optin) {
         try {
             OPT_OUT = loadFromFolder(optout);
