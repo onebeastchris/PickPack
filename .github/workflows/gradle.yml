@@ -19,7 +19,7 @@ jobs:
           distribution: 'adopt'
           cache: 'gradle'
       - name: Gradle Build
-        run: gradle build --parallel
+        run: gradle shadowJar --parallel
       - name: Auto Release
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
