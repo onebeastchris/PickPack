@@ -1,8 +1,8 @@
 # PickPack configuration
 
-# IP/port to use to reconnect players to:
-# Replace these with the ip/port you would need for the Geyser server.
-ip: 127.0.0.1
+# Address/port to use to reconnect players to:
+# Replace these with the address/port you would need for the Geyser server.
+address: 127.0.0.1
 port: 19132
 
 # Defaults, can be changed by players:

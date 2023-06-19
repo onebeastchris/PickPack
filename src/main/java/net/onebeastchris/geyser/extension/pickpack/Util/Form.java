@@ -149,7 +149,7 @@ public class Form {
     private void handle(GeyserConnection connection, boolean transferPacket) {
         GeyserSession session = (GeyserSession) connection;
         if (transferPacket) {
-            connection.transfer(config.address(), config.port());
+            session.transfer(config.address(), config.port());
         } else {
             session.disconnect(config.translations().disconnectMessage());
         }
