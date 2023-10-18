@@ -27,6 +27,7 @@ translations:
   main-menu-title: "Your current packs:"
   main-menu-change-button: "Change packs"
   main-menu-back-button: "Back"
+  main-menu-select-button: "Select packs"
 
   filter-form-title: "Which packs would you like to use?"
   filter-button-name: "Filter"

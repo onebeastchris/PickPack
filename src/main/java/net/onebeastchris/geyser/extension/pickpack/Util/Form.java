@@ -46,14 +46,12 @@ public class Form {
                 .title(config.translations().mainMenuTitle())
                 .content(getPacks(xuid))
                 .button1(config.translations().mainMenuChangeButton())
-                .button2(config.translations().mainMenuBackButton());
+                .button2(config.translations().mainMenuSelectButton());
 
         form.validResultHandler((modalform, response) -> {
             switch (response.clickedButtonId()) {
                 case 0 -> filterForm(connection);
-                case 1 -> {
-                    //do nothing... they clicked back
-                }
+                case 1 -> packsForm(connection, config.useTransferPacket(), config.showPackDescription(), Filter.ALL);
             }
         });
         connection.sendForm(form.build());

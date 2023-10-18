@@ -81,6 +81,7 @@ public class ConfigLoader {
                 @JsonProperty("main-menu-title") String mainMenuTitle,
                 @JsonProperty("main-menu-change-button") String mainMenuChangeButton,
                 @JsonProperty("main-menu-back-button") String mainMenuBackButton,
+                @JsonProperty("main-menu-select-button") String mainMenuSelectButton,
                 @JsonProperty("filter-form-title") String filterFormTitle,
                 @JsonProperty("filter-button-name") String filterButtonName,
                 @JsonProperty("filter-all-packs") String filterAllPacks,
