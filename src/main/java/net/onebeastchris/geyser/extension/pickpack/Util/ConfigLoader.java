@@ -67,7 +67,6 @@ public class ConfigLoader {
             @JsonProperty("use-transfer-packet") boolean useTransferPacket,
             @JsonProperty("menu-permission") String menuPermission,
             @JsonProperty("default-permission") String defaultPermission,
-
             @JsonProperty("default-locale") String defaultLocale,
             @JsonProperty("reload-permission") String reloadPermission,
             @JsonProperty("translations") Translations translations

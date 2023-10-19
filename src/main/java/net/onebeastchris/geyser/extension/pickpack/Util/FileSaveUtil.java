@@ -7,39 +7,42 @@ import java.io.*;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static net.onebeastchris.geyser.extension.pickpack.PickPack.loader;
 import static net.onebeastchris.geyser.extension.pickpack.PickPack.logger;
 
 public class FileSaveUtil {
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    public static void save(List<ResourcePack> list, String xuid) {
+
+    public static void save(List<String> list, String xuid) {
         Path filepath = PickPack.storagePath.resolve(xuid + ".txt");
-        if (filepath.toFile().exists()) {
-            filepath.toFile().delete();
-        }
-        List<String> packUUIDs = new ArrayList<>();
-        for (ResourcePack pack : list) {
-            packUUIDs.add(pack.manifest().header().uuid().toString());
-        }
-        saveToFile(packUUIDs, filepath);
+        saveToFile(list, filepath);
     }
 
-    public static List<ResourcePack> load(Path filepath) {
-        List<String> packUUIDs = readFromFile(filepath);
-        List<ResourcePack> list = new ArrayList<>();
-        for (String pack : packUUIDs) {
-            ResourcePack resourcePack = loader.getPack(pack);
-                if (resourcePack != null) {
-                    list.add(resourcePack);
-                } else {
-                    logger.debug("Could not find pack with UUID " + pack + " in either folder! We are not loading it.");
-                }
+    public static List<String> load(Path filepath) {
+        List<String> packs = readFromFile(filepath);
+        AtomicBoolean changed = new AtomicBoolean(false);
+        packs.forEach(packId -> {
+            ResourcePack pack = loader.getPack(packId);
+            if (pack == null) {
+                logger.debug("Could not find pack with UUID " + packId + " in cache, removing from file");
+                packs.remove(packId);
+                changed.set(true);
             }
-        return list;
+        });
+        if (changed.get()) {
+            saveToFile(packs, filepath);
+        }
+        return packs;
     }
 
     public static void saveToFile(List<String> packs, Path filepath) {
+        if (filepath.toFile().exists()) {
+            if (!filepath.toFile().delete()) {
+                logger.error("Failed to delete " + filepath.getFileName());
+                return;
+            }
+        }
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filepath.toFile()))) {
             for (String pack : packs) {
                 writer.write(pack);

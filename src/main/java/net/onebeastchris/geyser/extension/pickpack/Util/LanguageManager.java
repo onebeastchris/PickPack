@@ -11,9 +11,8 @@ import java.nio.file.Path;
 import java.util.*;
 
 public class LanguageManager {
-
-    private static final String EN_US_PROPERTIES = "en_us.properties";
-    public static String DEFAULT_LOCALE;
+    public static String DEFAULT_LOCALE = "en_us";
+    public static final String EN_US_PROPERTIES = "en_US.properties";
     public static Map<String, Properties> LOCALE_PROPERTIES = new HashMap<>();
 
     @SuppressWarnings("resource")
@@ -33,15 +32,17 @@ public class LanguageManager {
             throw new RuntimeException("Failed to list language files!", e);
         }
 
-        DEFAULT_LOCALE = PickPack.config.defaultLocale() == null ? EN_US_PROPERTIES : PickPack.config.defaultLocale() + ".properties";
+        if (PickPack.config.defaultLocale() != null) {
+            DEFAULT_LOCALE = PickPack.config.defaultLocale().replace(".properties", "");
+        }
 
-        //Check: Does english exist?
-        String currentDefaultLocale = DEFAULT_LOCALE;
-        if (languageFiles.stream().noneMatch(path -> path.getFileName().toString().equalsIgnoreCase(currentDefaultLocale))) {
+        //Check: Does default locale exist? Fallback to en_us if it does not.
+        if (languageFiles.stream().noneMatch(path -> path.getFileName().toString().equalsIgnoreCase(DEFAULT_LOCALE + ".properties"))) {
+
             // Check: Is default locale not english?
-            if (!DEFAULT_LOCALE.equalsIgnoreCase(EN_US_PROPERTIES)) {
+            if (!DEFAULT_LOCALE.equalsIgnoreCase("en_us")) {
                 PickPack.logger.warning("Default configured locale " + DEFAULT_LOCALE + " not found, falling back to en_us.properties");
-                DEFAULT_LOCALE = EN_US_PROPERTIES;
+                DEFAULT_LOCALE = "en_us";
             }
 
             try (InputStream input = PickPack.class.getClassLoader().getResourceAsStream(EN_US_PROPERTIES)) {
@@ -69,6 +70,8 @@ public class LanguageManager {
                     localeProp.load(reader);
                 } catch (Exception e) {
                     throw new AssertionError("Failed to load locale " + fileName);
+                } finally {
+                    localeStream.close();
                 }
 
                 // Insert the locale into the mappings, all lowercase

@@ -1,11 +1,11 @@
-package net.onebeastchris.geyser.extension.pickpack.Util;
+package net.onebeastchris.geyser.extension.pickpack;
 
-import net.onebeastchris.geyser.extension.pickpack.PickPack;
+import net.onebeastchris.geyser.extension.pickpack.Util.LanguageManager;
 import org.geysermc.cumulus.component.ToggleComponent;
 import org.geysermc.cumulus.form.CustomForm;
 import org.geysermc.cumulus.form.ModalForm;
 import org.geysermc.geyser.api.connection.GeyserConnection;
-import org.geysermc.geyser.api.pack.ResourcePack;
+import org.geysermc.geyser.api.pack.ResourcePackManifest;
 import org.geysermc.geyser.session.GeyserSession;
 import org.geysermc.geyser.text.ChatColor;
 
@@ -41,7 +41,7 @@ public class Form {
                     return;
                 }
                 case "clear" -> {
-                    CompletableFuture<Void> future = PickPack.storage.setPacks(xuid, new ArrayList<>(loader.OPT_OUT.values()));
+                    CompletableFuture<Void> future = PickPack.storage.setPacks(xuid, new ArrayList<>(loader.OPTIONAL.keySet()));
                     future.thenRun(() -> handle(config.useTransferPacket()));
                     return;
                 }
@@ -53,7 +53,7 @@ public class Form {
                 .button1(LanguageManager.getLocaleString(lang, "main.menu.filter"))
                 .button2(LanguageManager.getLocaleString(lang, "main.menu.select"));
 
-        form.validResultHandler((modalform, response) -> {
+        form.validResultHandler((modalForm, response) -> {
             switch (response.clickedButtonId()) {
                 case 0 -> filterForm();
                 case 1 -> packsForm(config.useTransferPacket(), config.showPackDescription(), Filter.ALL);
@@ -66,8 +66,8 @@ public class Form {
         CustomForm.Builder form = CustomForm.builder()
                 .title(LanguageManager.getLocaleString(lang, "filter.form.title"));
 
-        if (PickPack.storage.getPacks(connection.xuid()).isEmpty()) {
-            form.dropdown(LanguageManager.getLocaleString(lang, "filter.button.name"), LanguageManager.getLocaleString(lang, "filter.all.packs"), LanguageManager.getLocaleString(lang, "filter.all.packs"));
+        if (PickPack.storage.getPackIds(connection.xuid()).isEmpty()) {
+            form.dropdown(LanguageManager.getLocaleString(lang, "filter.button.name"), LanguageManager.getLocaleString(lang, "filter.all.packs"));
         } else {
             form.dropdown(LanguageManager.getLocaleString(lang, "filter.button.name"),
                     LanguageManager.getLocaleString(lang, "filter.all.packs"),
@@ -81,6 +81,7 @@ public class Form {
         form.validResultHandler((customform, response) -> {
             int filterResult  = response.asDropdown(0);
             boolean description = response.asToggle(1);
+            // 2 is the label
             boolean transfer = response.asToggle(3);
 
             switch (filterResult) {
@@ -98,16 +99,18 @@ public class Form {
         CustomForm.Builder form = CustomForm.builder()
                 .title(LanguageManager.getLocaleString(lang, "pack.form.title"));
 
-        form.label(LanguageManager.getLocaleString(lang, "pack.form.label").replace("%filter%", getFilterType(filter)));
+        form.label(String.format(LanguageManager.getLocaleString(lang, "pack.form.label"), getFilterType(filter)));
 
-        for (Map.Entry<String, String[]> entry : loader.PACKS_INFO.entrySet()) {
-            String name = entry.getValue()[0];
+        for (Map.Entry<String, ResourcePackManifest> entry : loader.PACKS_INFO.entrySet()) {
+            String name = entry.getValue().header().name();
             boolean currentlyApplied = PickPack.storage.hasSpecificPack(xuid, entry.getKey());
-            boolean isVisible = filter.equals(Filter.ALL) || (filter.equals(Filter.APPLIED) && currentlyApplied) || (filter.equals(Filter.NOT_APPLIED) && !currentlyApplied);
+            boolean isVisible = filter.equals(Filter.ALL) ||
+                    (filter.equals(Filter.APPLIED) && currentlyApplied) ||
+                    (filter.equals(Filter.NOT_APPLIED) && !currentlyApplied);
             if (isVisible) {
                 form.toggle(name, currentlyApplied);
-                if (description) form.label(ChatColor.ITALIC + entry.getValue()[1] + ChatColor.RESET);
-                tempMap.put(entry.getValue()[0], entry.getKey()); //makes it easier to get the uuid from the name later on
+                if (description) form.label(ChatColor.ITALIC + entry.getValue().header().description() + ChatColor.RESET);
+                tempMap.put(entry.getValue().header().name(), entry.getKey()); //makes it easier to get the uuid from the name later on
             }
         }
 
@@ -116,19 +119,19 @@ public class Form {
         });
 
         form.validResultHandler((customform, response) -> {
-            List<ResourcePack> playerPacks = new ArrayList<>();
+            List<String> playerPacks = new ArrayList<>();
             customform.content().forEach((component) -> {
                 if (component instanceof ToggleComponent) {
                     if (Boolean.TRUE.equals(response.next())) {
                         String uuid = tempMap.get(component.text());
-                        playerPacks.add(loader.getPack(uuid));
+                        playerPacks.add(uuid);
                     }
                 }
             });
 
             if (filter.equals(Filter.NOT_APPLIED)) {
                 //keep the old packs if we are filtering for not applied packs
-                playerPacks.addAll(PickPack.storage.getPacks(xuid));
+                playerPacks.addAll(PickPack.storage.getPackIds(xuid));
             }
 
             CompletableFuture<Void> future = PickPack.storage.setPacks(xuid, playerPacks);
@@ -141,8 +144,8 @@ public class Form {
 
     private String getPacks(String xuid) {
         StringBuilder packs = new StringBuilder();
-        for (ResourcePack pack : PickPack.storage.getPacks(xuid)) {
-            String name = pack.manifest().header().name();
+        for (String packId : PickPack.storage.getPackIds(xuid)) {
+            String name = loader.PACKS_INFO.get(packId).header().name();
             packs.append(" - ").append(name).append("\n");
         }
         if (packs.length() == 0) packs.append(LanguageManager.getLocaleString(lang, "no_packs.warning"));

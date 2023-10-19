@@ -13,19 +13,18 @@ import org.geysermc.geyser.api.extension.ExtensionLogger;
 import org.geysermc.geyser.api.pack.ResourcePack;
 import org.geysermc.geyser.command.GeyserCommandSource;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 public class PickPack implements Extension {
     public static ResourcePackLoader loader;
     public static PlayerStorage storage;
     public static Path storagePath;
-
     public static ConfigLoader.Config config;
     public static ExtensionLogger logger;
-
-    private Path optInPath;
-    private Path optOutPath;
 
     @Subscribe
     public void onPreInitialize(GeyserPreInitializeEvent event) {
@@ -46,8 +45,9 @@ public class PickPack implements Extension {
         }
 
         try {
-            LanguageManager.init(this.dataFolder().resolve("lang"));
+            LanguageManager.init(this.dataFolder().resolve("translations"));
         } catch (Exception e) {
+            e.printStackTrace();
             this.disable();
             throw new RuntimeException("Failed to load language files!", e);
         }
@@ -55,17 +55,31 @@ public class PickPack implements Extension {
 
     @Subscribe
     public void onPostInitialize(GeyserPostInitializeEvent event) {
-        optInPath = this.dataFolder().resolve("optIn");
-        optOutPath = this.dataFolder().resolve("optOut");
+        Path optionalPacksPath = this.dataFolder().resolve("OptionalPacks");
+        Path defaultPacksPath = this.dataFolder().resolve("DefaultPacks");
         storagePath = this.dataFolder().resolve("cache");
+
+        try {
+            // Replace opt-in and opt-out directories with new ones
+            if (this.dataFolder().resolve("optIn").toFile().exists()) {
+                Files.move(this.dataFolder().resolve("optIn"), optionalPacksPath, StandardCopyOption.REPLACE_EXISTING);
+            }
+            if (this.dataFolder().resolve("optOut").toFile().exists()) {
+                Files.move(this.dataFolder().resolve("optOut"), defaultPacksPath, StandardCopyOption.REPLACE_EXISTING);
+            }
+        } catch (IOException e) {
+            logger.error("Unable to migrate optIn and optOut directories!" + e.getMessage());
+            e.printStackTrace();
+            this.disable();
+        }
 
         logger = this.logger();
 
-        FileSaveUtil.makeDir(optInPath, "opt-in-packs");
-        FileSaveUtil.makeDir(optOutPath, "opt-out-packs");
+        FileSaveUtil.makeDir(optionalPacksPath, "optional packs directory");
+        FileSaveUtil.makeDir(defaultPacksPath, "default packs directory");
         FileSaveUtil.makeDir(storagePath, "storage");
 
-        loader = new ResourcePackLoader(optOutPath, optInPath);
+        loader = new ResourcePackLoader(optionalPacksPath, defaultPacksPath);
         storage = new PlayerStorage();
 
         logger.info("PickPack extension loaded!");
@@ -83,9 +97,6 @@ public class PickPack implements Extension {
 
     @Subscribe
     public void CommandEvent(GeyserDefineCommandsEvent commandsEvent) {
-        if (!this.isEnabled()) {
-            return;
-        }
         commandsEvent.register(Command.builder(this)
                 .name("menu")
                 .aliases(List.of("list"))
@@ -125,7 +136,7 @@ public class PickPack implements Extension {
                 .suggestedOpOnly(true)
                 .permission(config.reloadPermission())
                 .executor((source, command, args) -> {
-                    loader.reload(optOutPath, optInPath);
+                    loader.reload();
                     try {
                         config = ConfigLoader.load(this, this.getClass(), ConfigLoader.Config.class);
                         assert config != null;

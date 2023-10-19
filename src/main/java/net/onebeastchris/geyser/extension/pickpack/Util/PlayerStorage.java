@@ -17,7 +17,10 @@ import static net.onebeastchris.geyser.extension.pickpack.PickPack.loader;
 import static net.onebeastchris.geyser.extension.pickpack.PickPack.logger;
 
 public class PlayerStorage {
-    public Map<String, List<ResourcePack>> cache;
+    /**
+     * This is a map of XUIDs to a list of resource packs.
+     */
+    public Map<String, List<String>> cache;
     public PlayerStorage() {
         cache = new HashMap<>();
 
@@ -27,13 +30,8 @@ public class PlayerStorage {
         }
     }
 
-    public CompletableFuture<Void> setPacks(String xuid, List<ResourcePack> packs) {
+    public CompletableFuture<Void> setPacks(String xuid, List<String> packs) {
         cache.put(xuid, packs);
-        StringBuilder packsString = new StringBuilder();
-        for (ResourcePack pack : packs) {
-            packsString.append(pack.manifest().header().name()).append(" ");
-        }
-        logger.debug("Saving packs for " + xuid + ": " + packsString);
         Executors.newSingleThreadExecutor().execute(() ->
                 FileSaveUtil.save(packs, xuid)
         );
@@ -42,24 +40,37 @@ public class PlayerStorage {
 
     public @NonNull List<ResourcePack> getPacks(String xuid) {
         if (cache.containsKey(xuid)) {
+            List<ResourcePack> packs = new ArrayList<>();
+            cache.get(xuid).forEach(pack -> {
+                ResourcePack resourcePack = loader.getPack(pack);
+                if (resourcePack != null) {
+                    packs.add(resourcePack);
+                }
+            });
+            return packs;
+        } else {
+            return new ArrayList<>(loader.DEFAULT.values());
+        }
+    }
+
+    public @NonNull List<String> getPackIds(String xuid) {
+        if (cache.containsKey(xuid)) {
             return cache.get(xuid);
         } else {
-            return new ArrayList<>(loader.OPT_OUT.values());
+            return new ArrayList<>(loader.DEFAULT.keySet());
         }
     }
 
     public boolean hasSpecificPack(String xuid, String uuid) {
         if (cache.containsKey(xuid)) {
-            boolean hasPack = false;
-            for (ResourcePack pack : cache.get(xuid)) {
-                if (pack.manifest().header().uuid().toString().equals(uuid)) {
-                    hasPack = true;
-                    break;
+            for (String pack : cache.get(xuid)) {
+                if (pack.equals(uuid)) {
+                    return true;
                 }
             }
-            return hasPack;
+            return false;
         } else {
-            return loader.OPT_OUT.containsKey(uuid);
+            return loader.DEFAULT.containsKey(uuid);
         }
     }
 }

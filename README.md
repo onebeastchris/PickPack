@@ -31,11 +31,15 @@ Download available in the releases tab.
 ### Usage:
 - Configure the ip/port in the config.yml. The file is located under /Geyser/extensions/PickPack/config.yml.
 These are needed so the automatic transfer packet works.
-- Place packs that players can opt out of in the "optOut" folder. (located in Geyser/extensions/PickPack)
-- Place packs that players can opt in to in the "optIn" folder. (located in Geyser/extensions/PickPack)
+- Place packs that are applied by default go in the "defaultPacks" folder. (located in Geyser/extensions/PickPack/defaultPacks)
+- Place packs that players can optionally turn on go in the "optionalPacks" folder. (located in Geyser/extensions/optionalPacks)
 - Reload the extension using `/pickpack reload`, or restart the server.
 
 ### Commands:
 - `/pickpack menu` or `/pickpack list` - Opens the pack selection menu.
 - `/pickpack reset` or `/pickpack default` - Resets the player's pack selection to the default packs.
 - `/pickpack reload` - Reloads the config.yml and the packs.
+
+### Languages:
+This extension has multi-language support. However, the default language is English - to add more languages, copy the `en_US.properties` file from the /extensions/PickPack/translations folder, and translate the strings. 
+Then, save the file as e.g. `de_DE.properties` for German. You can select a default locale in the config.yml. Otherwise, all locales will be loaded & used automatically if a player's language matches.
