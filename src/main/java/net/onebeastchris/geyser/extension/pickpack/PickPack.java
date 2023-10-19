@@ -1,10 +1,6 @@
 package net.onebeastchris.geyser.extension.pickpack;
 
-import net.onebeastchris.geyser.extension.pickpack.Util.ConfigLoader;
-import net.onebeastchris.geyser.extension.pickpack.Util.FileSaveUtil;
-import net.onebeastchris.geyser.extension.pickpack.Util.ResourcePackLoader;
-import net.onebeastchris.geyser.extension.pickpack.Util.PlayerStorage;
-import net.onebeastchris.geyser.extension.pickpack.Util.Form;
+import net.onebeastchris.geyser.extension.pickpack.Util.*;
 import org.geysermc.event.subscribe.Subscribe;
 import org.geysermc.geyser.api.command.Command;
 import org.geysermc.geyser.api.connection.GeyserConnection;
@@ -35,6 +31,26 @@ public class PickPack implements Extension {
     public void onPreInitialize(GeyserPreInitializeEvent event) {
         // need to load config early so commands can get their translations
         config = ConfigLoader.load(this, this.getClass(), ConfigLoader.Config.class);
+
+        if (config == null) {
+            this.disable();
+            throw new RuntimeException("Failed to load config!");
+        }
+
+        if (config.translations().outdatedConfigTest() != null) {
+            this.logger().warning("Your config is outdated! Please let it regenerate. Changes include:");
+            this.logger().warning("- Locale files instead of translations in the config");
+            this.logger().warning("- New config option: default-locale");
+            this.logger().warning("However, command descriptions are still in the config since those cannot " +
+                    "be changed on a player by player basis.");
+        }
+
+        try {
+            LanguageManager.init(this.dataFolder().resolve("lang"));
+        } catch (Exception e) {
+            this.disable();
+            throw new RuntimeException("Failed to load language files!", e);
+        }
     }
 
     @Subscribe
@@ -67,6 +83,9 @@ public class PickPack implements Extension {
 
     @Subscribe
     public void CommandEvent(GeyserDefineCommandsEvent commandsEvent) {
+        if (!this.isEnabled()) {
+            return;
+        }
         commandsEvent.register(Command.builder(this)
                 .name("menu")
                 .aliases(List.of("list"))
@@ -77,8 +96,8 @@ public class PickPack implements Extension {
                 .suggestedOpOnly(false)
                 .permission(config.menuPermission())
                 .executor((source, command, args) -> {
-                    Form form = new Form();
-                    form.send((GeyserConnection) source, args);
+                    Form form = new Form((GeyserConnection) source);
+                    form.send(args);
                 })
                 .build());
 
@@ -92,8 +111,8 @@ public class PickPack implements Extension {
                 .suggestedOpOnly(false)
                 .permission(config.defaultPermission())
                 .executor((source, command, args) -> {
-                    Form form = new Form();
-                    form.send((GeyserConnection) source, "clear");
+                    Form form = new Form((GeyserConnection) source);
+                    form.send("clear");
                 })
                 .build());
 
@@ -107,8 +126,17 @@ public class PickPack implements Extension {
                 .permission(config.reloadPermission())
                 .executor((source, command, args) -> {
                     loader.reload(optOutPath, optInPath);
-                    config = ConfigLoader.load(this, this.getClass(), ConfigLoader.Config.class);
-                    source.sendMessage(config.translations().reloadCommandSuccess());
+                    try {
+                        config = ConfigLoader.load(this, this.getClass(), ConfigLoader.Config.class);
+                        assert config != null;
+
+                        LanguageManager.LOCALE_PROPERTIES.clear();
+                        LanguageManager.init(this.dataFolder().resolve("lang"));
+                    } catch (Exception e) {
+                        source.sendMessage(LanguageManager.getLocaleString(LanguageManager.DEFAULT_LOCALE, "reload.error"));
+                    } finally {
+                        source.sendMessage(LanguageManager.getLocaleString(LanguageManager.DEFAULT_LOCALE, "reload.success"));
+                    }
                 })
                 .build());
     }

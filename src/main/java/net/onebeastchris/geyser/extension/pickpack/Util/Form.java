@@ -19,59 +19,64 @@ import static net.onebeastchris.geyser.extension.pickpack.PickPack.config;
 import static net.onebeastchris.geyser.extension.pickpack.PickPack.loader;
 
 public class Form {
+    private final String lang;
+    private final GeyserConnection connection;
     public enum Filter {
         APPLIED,
         NOT_APPLIED,
         ALL
     }
-    public Form() {
+    public Form(GeyserConnection connection) {
+        this.connection = connection;
+        this.lang = connection.locale();
     }
-    public void send(GeyserConnection connection, String... args) {
+
+    public void send(String... args) {
         String xuid = connection.xuid();
 
         if (args != null && args.length > 0) {
             switch (args[0]) {
                 case "filter" -> {
-                    filterForm(connection);
+                    filterForm();
                     return;
                 }
                 case "clear" -> {
                     CompletableFuture<Void> future = PickPack.storage.setPacks(xuid, new ArrayList<>(loader.OPT_OUT.values()));
-                    future.thenRun(() -> handle(connection, true));
+                    future.thenRun(() -> handle(config.useTransferPacket()));
                     return;
                 }
             }
         }
         ModalForm.Builder form = ModalForm.builder()
-                .title(config.translations().mainMenuTitle())
+                .title(LanguageManager.getLocaleString(lang, "main.menu.title"))
                 .content(getPacks(xuid))
-                .button1(config.translations().mainMenuChangeButton())
-                .button2(config.translations().mainMenuSelectButton());
+                .button1(LanguageManager.getLocaleString(lang, "main.menu.filter"))
+                .button2(LanguageManager.getLocaleString(lang, "main.menu.select"));
 
         form.validResultHandler((modalform, response) -> {
             switch (response.clickedButtonId()) {
-                case 0 -> filterForm(connection);
-                case 1 -> packsForm(connection, config.useTransferPacket(), config.showPackDescription(), Filter.ALL);
+                case 0 -> filterForm();
+                case 1 -> packsForm(config.useTransferPacket(), config.showPackDescription(), Filter.ALL);
             }
         });
         connection.sendForm(form.build());
     }
 
-    public void filterForm(GeyserConnection connection) {
+    public void filterForm() {
         CustomForm.Builder form = CustomForm.builder()
-                .title(config.translations().filterFormTitle());
+                .title(LanguageManager.getLocaleString(lang, "filter.form.title"));
 
         if (PickPack.storage.getPacks(connection.xuid()).isEmpty()) {
-            form.dropdown(config.translations().filterButtonName(), config.translations().filterAllPacks());
+            form.dropdown(LanguageManager.getLocaleString(lang, "filter.button.name"), LanguageManager.getLocaleString(lang, "filter.all.packs"), LanguageManager.getLocaleString(lang, "filter.all.packs"));
         } else {
-            form.dropdown(config.translations().filterButtonName(),
-                    config.translations().filterAllPacks(),
-                    config.translations().filterNotAppliedPacks(),
-                    config.translations().filterAppliedPacks());
+            form.dropdown(LanguageManager.getLocaleString(lang, "filter.button.name"),
+                    LanguageManager.getLocaleString(lang, "filter.all.packs"),
+                    LanguageManager.getLocaleString(lang, "filter.not_applied.packs"),
+                    LanguageManager.getLocaleString(lang, "filter.applied.packs"));
         }
-        form.toggle(config.translations().filterDescriptionToggle(), config.showPackDescription());
-        form.label(config.translations().filterTransferWarning());
-        form.toggle(config.translations().filterTransferToggle(), config.useTransferPacket());
+        form.toggle(LanguageManager.getLocaleString(lang, "filter.description.toggle"), config.showPackDescription());
+        form.label(LanguageManager.getLocaleString(lang, "filter.transfer.warning"));
+        form.toggle(LanguageManager.getLocaleString(lang, "filter.transfer.toggle"), config.useTransferPacket());
 
         form.validResultHandler((customform, response) -> {
             int filterResult  = response.asDropdown(0);
@@ -79,21 +84,21 @@ public class Form {
             boolean transfer = response.asToggle(3);
 
             switch (filterResult) {
-                case 1 -> packsForm(connection, transfer, description, Filter.NOT_APPLIED);
-                case 2 -> packsForm(connection, transfer, description, Filter.APPLIED);
-                default -> packsForm(connection, transfer, description, Filter.ALL);
+                case 1 -> packsForm(transfer, description, Filter.NOT_APPLIED);
+                case 2 -> packsForm(transfer, description, Filter.APPLIED);
+                default -> packsForm(transfer, description, Filter.ALL);
             }
         });
         connection.sendForm(form.build());
     }
 
-    public void packsForm(GeyserConnection connection, boolean transferPacket, boolean description, Filter filter) {
+    public void packsForm(boolean transferPacket, boolean description, Filter filter) {
         String xuid = connection.xuid();
         Map<String, String> tempMap = new HashMap<>();
         CustomForm.Builder form = CustomForm.builder()
-                .title(config.translations().packFormTitle());
+                .title(LanguageManager.getLocaleString(lang, "pack.form.title"));
 
-        form.label( config.translations().packFormLabel().replace("%filter%", getFilterType(filter)));
+        form.label(LanguageManager.getLocaleString(lang, "pack.form.label").replace("%filter%", getFilterType(filter)));
 
         for (Map.Entry<String, String[]> entry : loader.PACKS_INFO.entrySet()) {
             String name = entry.getValue()[0];
@@ -107,7 +112,7 @@ public class Form {
         }
 
         form.closedOrInvalidResultHandler((customform, response) -> {
-            filterForm(connection); //we cant add back buttons. But we can just send the filter form again.
+            filterForm(); //we cant add back buttons. But we can just send the filter form again.
         });
 
         form.validResultHandler((customform, response) -> {
@@ -127,7 +132,7 @@ public class Form {
             }
 
             CompletableFuture<Void> future = PickPack.storage.setPacks(xuid, playerPacks);
-            future.thenRun(() -> handle(connection, transferPacket));
+            future.thenRun(() -> handle(transferPacket));
 
             tempMap.clear();
         });
@@ -140,24 +145,24 @@ public class Form {
             String name = pack.manifest().header().name();
             packs.append(" - ").append(name).append("\n");
         }
-        if (packs.length() == 0) packs.append(config.translations().noPacksWarning());
+        if (packs.length() == 0) packs.append(LanguageManager.getLocaleString(lang, "no_packs.warning"));
         return packs.toString();
     }
 
-    private void handle(GeyserConnection connection, boolean transferPacket) {
+    private void handle(boolean transferPacket) {
         GeyserSession session = (GeyserSession) connection;
         if (transferPacket) {
             session.transfer(config.address(), config.port());
         } else {
-            session.disconnect(config.translations().disconnectMessage());
+            session.disconnect(LanguageManager.getLocaleString(lang, "disconnect.message"));
         }
     }
 
     private String getFilterType(Filter filter) {
         return switch (filter) {
-            case ALL -> config.translations().filterAllPacks();
-            case APPLIED -> config.translations().filterAppliedPacks();
-            case NOT_APPLIED -> config.translations().filterNotAppliedPacks();
+            case ALL -> LanguageManager.getLocaleString(lang, "filter.all.packs");
+            case APPLIED -> LanguageManager.getLocaleString(lang, "filter.applied.packs");
+            case NOT_APPLIED -> LanguageManager.getLocaleString(lang, "filter.not_applied.packs");
         };
     }
 }

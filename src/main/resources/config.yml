@@ -19,31 +19,14 @@ menu-permission: " "
 # pickpack.default: Permission for /pickpack default. Blank is for all Bedrock players.
 default-permission: " "
 
+# The default locale to use. If this is not en_US, you will need to provide your own locale.
+default-locale: en_US
+
+# The translations to use for commands. Menu translations can be found in the locale file(s).
 translations:
   menu-command-description: "Choose your own packs"
   reset-command-description: "Reset your packs to the default packs"
   reload-command-description: "Reload the config"
-
-  main-menu-title: "Your current packs:"
-  main-menu-change-button: "Change packs"
-  main-menu-back-button: "Back"
-  main-menu-select-button: "Select packs"
-
-  filter-form-title: "Which packs would you like to use?"
-  filter-button-name: "Filter"
-  filter-all-packs: "all packs"
-  filter-not-applied-packs: "not applied packs"
-  filter-applied-packs: "applied packs"
-  filter-description-toggle: "Show pack descriptions"
-  filter-transfer-warning: "If the transfer packet does not work for you, you can disable it here."
-  filter-transfer-toggle: "Use transfer packet"
-
-  pack-form-title: "Choose your packs:"
-  pack-form-label: "§l§2 showing§r§l§6 %filter% §r"
-  no-packs-warning: "You have no packs applied!"
-
-  disconnect-message: "§6 Join back to apply the changes!"
-  reload-message: "§6 Config reloaded!"
 
 
 

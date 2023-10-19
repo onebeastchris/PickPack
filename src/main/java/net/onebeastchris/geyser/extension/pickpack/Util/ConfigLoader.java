@@ -36,11 +36,8 @@ public class ConfigLoader {
                 try (FileSystem fileSystem = FileSystems.newFileSystem(new File(extensionClass.getProtectionDomain().getCodeSource().getLocation().toURI()).toPath(), Collections.emptyMap())) {
                     try (InputStream input = Files.newInputStream(fileSystem.getPath("config.yml"))) {
                         byte[] bytes = new byte[input.available()];
-
                         input.read(bytes);
-
                         writer.write(new String(bytes).toCharArray());
-
                         writer.flush();
                     }
                 }
@@ -70,6 +67,8 @@ public class ConfigLoader {
             @JsonProperty("use-transfer-packet") boolean useTransferPacket,
             @JsonProperty("menu-permission") String menuPermission,
             @JsonProperty("default-permission") String defaultPermission,
+
+            @JsonProperty("default-locale") String defaultLocale,
             @JsonProperty("reload-permission") String reloadPermission,
             @JsonProperty("translations") Translations translations
     ) {
@@ -78,23 +77,8 @@ public class ConfigLoader {
                 @JsonProperty("reset-command-description") String resetCommandDescription,
                 @JsonProperty("reload-command-description") String reloadCommandDescription,
 
-                @JsonProperty("main-menu-title") String mainMenuTitle,
-                @JsonProperty("main-menu-change-button") String mainMenuChangeButton,
-                @JsonProperty("main-menu-back-button") String mainMenuBackButton,
-                @JsonProperty("main-menu-select-button") String mainMenuSelectButton,
-                @JsonProperty("filter-form-title") String filterFormTitle,
-                @JsonProperty("filter-button-name") String filterButtonName,
-                @JsonProperty("filter-all-packs") String filterAllPacks,
-                @JsonProperty("filter-not-applied-packs") String filterNotAppliedPacks,
-                @JsonProperty("filter-applied-packs") String filterAppliedPacks,
-                @JsonProperty("filter-description-toggle") String filterDescriptionToggle,
-                @JsonProperty("filter-transfer-warning") String filterTransferWarning,
-                @JsonProperty("filter-transfer-toggle") String filterTransferToggle,
-                @JsonProperty("pack-form-title") String packFormTitle,
-                @JsonProperty("pack-form-label") String packFormLabel,
-                @JsonProperty("no-packs-warning") String noPacksWarning,
-                @JsonProperty("disconnect-message") String disconnectMessage,
-                @JsonProperty("reload-message") String reloadCommandSuccess
+                // Test for outdated config
+                @JsonProperty("main-menu-title") String outdatedConfigTest
         ) {}
     }
 }
