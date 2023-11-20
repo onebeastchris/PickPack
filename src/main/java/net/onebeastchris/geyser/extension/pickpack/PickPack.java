@@ -28,6 +28,8 @@ public class PickPack implements Extension {
 
     @Subscribe
     public void onPreInitialize(GeyserPreInitializeEvent event) {
+        logger = this.logger();
+
         // need to load config early so commands can get their translations
         config = ConfigLoader.load(this, this.getClass(), ConfigLoader.Config.class);
 
@@ -72,8 +74,6 @@ public class PickPack implements Extension {
             e.printStackTrace();
             this.disable();
         }
-
-        logger = this.logger();
 
         FileSaveUtil.makeDir(optionalPacksPath, "optional packs directory");
         FileSaveUtil.makeDir(defaultPacksPath, "default packs directory");
@@ -142,7 +142,7 @@ public class PickPack implements Extension {
                         assert config != null;
 
                         LanguageManager.LOCALE_PROPERTIES.clear();
-                        LanguageManager.init(this.dataFolder().resolve("lang"));
+                        LanguageManager.init(this.dataFolder().resolve("translations"));
                     } catch (Exception e) {
                         source.sendMessage(LanguageManager.getLocaleString(LanguageManager.DEFAULT_LOCALE, "reload.error"));
                     } finally {

@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 public class LanguageManager {
@@ -33,7 +34,7 @@ public class LanguageManager {
         }
 
         if (PickPack.config.defaultLocale() != null) {
-            DEFAULT_LOCALE = PickPack.config.defaultLocale().replace(".properties", "");
+            DEFAULT_LOCALE = PickPack.config.defaultLocale().toLowerCase().replace(".properties", "");
         }
 
         //Check: Does default locale exist? Fallback to en_us if it does not.
@@ -48,7 +49,7 @@ public class LanguageManager {
             try (InputStream input = PickPack.class.getClassLoader().getResourceAsStream(EN_US_PROPERTIES)) {
                 assert input != null;
                 Path defaultLocalePath = languageFolder.resolve(EN_US_PROPERTIES);
-                Files.copy(input, defaultLocalePath);
+                Files.copy(input, defaultLocalePath, StandardCopyOption.REPLACE_EXISTING);
                 languageFiles.add(defaultLocalePath);
             }
         }

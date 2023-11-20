@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'net.onebeastchris.geyser.extension'
-version '1.2.0'
+version '1.2.1'
 
 repositories {
     mavenCentral()
@@ -27,10 +27,10 @@ repositories {
 }
 
 dependencies {
-    compileOnly('org.geysermc.geyser:core:2.1.1-SNAPSHOT') {
+    compileOnly('org.geysermc.geyser:core:2.2.0-SNAPSHOT') {
         exclude group: 'io.netty'
     }
-    compileOnly('org.geysermc.geyser:api:2.1.1-SNAPSHOT')
+    compileOnly('org.geysermc.geyser:api:2.2.0-SNAPSHOT')
 
     api('com.fasterxml.jackson.core:jackson-annotations:2.15.2')
     api('com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.2')
