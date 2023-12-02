@@ -1,4 +1,4 @@
-package net.onebeastchris.geyser.extension.pickpack.Util;
+package net.onebeastchris.geyser.extension.pickpack.util;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.DeserializationFeature;

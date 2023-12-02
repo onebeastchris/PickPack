@@ -1,6 +1,6 @@
 package net.onebeastchris.geyser.extension.pickpack;
 
-import net.onebeastchris.geyser.extension.pickpack.Util.*;
+import net.onebeastchris.geyser.extension.pickpack.util.*;
 import org.geysermc.event.subscribe.Subscribe;
 import org.geysermc.geyser.api.command.Command;
 import org.geysermc.geyser.api.connection.GeyserConnection;

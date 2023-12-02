@@ -1,13 +1,10 @@
-package net.onebeastchris.geyser.extension.pickpack.Util;
+package net.onebeastchris.geyser.extension.pickpack.util;
 
 import net.onebeastchris.geyser.extension.pickpack.PickPack;
-import org.geysermc.geyser.api.pack.ResourcePack;
-
 import java.io.*;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static net.onebeastchris.geyser.extension.pickpack.PickPack.loader;
 import static net.onebeastchris.geyser.extension.pickpack.PickPack.logger;
@@ -21,18 +18,12 @@ public class FileSaveUtil {
 
     public static List<String> load(Path filepath) {
         List<String> packs = readFromFile(filepath);
-        AtomicBoolean changed = new AtomicBoolean(false);
-        packs.forEach(packId -> {
-            ResourcePack pack = loader.getPack(packId);
-            if (pack == null) {
-                logger.debug("Could not find pack with UUID " + packId + " in cache, removing from file");
-                packs.remove(packId);
-                changed.set(true);
-            }
-        });
-        if (changed.get()) {
+
+        // Remove packs that no longer exist
+        if (packs.removeIf(packId -> loader.getPack(packId) == null)) {
             saveToFile(packs, filepath);
         }
+
         return packs;
     }
 

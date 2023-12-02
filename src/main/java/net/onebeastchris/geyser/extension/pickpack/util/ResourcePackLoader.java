@@ -1,5 +1,6 @@
-package net.onebeastchris.geyser.extension.pickpack.Util;
+package net.onebeastchris.geyser.extension.pickpack.util;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.geysermc.geyser.api.pack.PackCodec;
 import org.geysermc.geyser.api.pack.ResourcePack;
 import org.geysermc.geyser.api.pack.ResourcePackManifest;
@@ -15,10 +16,11 @@ import static net.onebeastchris.geyser.extension.pickpack.PickPack.logger;
 public class ResourcePackLoader {
     public Map<String, ResourcePack> DEFAULT = new HashMap<>();
     public Map<String, ResourcePack> OPTIONAL = new HashMap<>();
-    public Map<String, ResourcePackManifest> PACKS_INFO = new HashMap<>();
+    public final Map<String, ResourcePackManifest> PACKS_INFO = new HashMap<>();
 
     private final Path optionalPacksPath;
     private final Path defaultPacksPath;
+
     public ResourcePackLoader(Path optionalPacksPath, Path defaultPacksPath) {
         this.optionalPacksPath = optionalPacksPath;
         this.defaultPacksPath = defaultPacksPath;
@@ -44,7 +46,7 @@ public class ResourcePackLoader {
         }
     }
 
-    public ResourcePack getPack(String packId) {
+    public @Nullable ResourcePack getPack(String packId) {
         return DEFAULT.getOrDefault(packId, OPTIONAL.get(packId));
     }
 

@@ -1,4 +1,4 @@
-package net.onebeastchris.geyser.extension.pickpack.Util;
+package net.onebeastchris.geyser.extension.pickpack.util;
 
 import net.onebeastchris.geyser.extension.pickpack.PickPack;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -20,7 +20,8 @@ public class PlayerStorage {
     /**
      * This is a map of XUIDs to a list of resource packs.
      */
-    public Map<String, List<String>> cache;
+    public final Map<String, List<String>> cache;
+
     public PlayerStorage() {
         cache = new HashMap<>();
 

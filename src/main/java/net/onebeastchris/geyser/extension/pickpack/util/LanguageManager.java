@@ -1,4 +1,4 @@
-package net.onebeastchris.geyser.extension.pickpack.Util;
+package net.onebeastchris.geyser.extension.pickpack.util;
 
 import net.onebeastchris.geyser.extension.pickpack.PickPack;
 
@@ -14,7 +14,7 @@ import java.util.*;
 public class LanguageManager {
     public static String DEFAULT_LOCALE = "en_us";
     public static final String EN_US_PROPERTIES = "en_US.properties";
-    public static Map<String, Properties> LOCALE_PROPERTIES = new HashMap<>();
+    public static final Map<String, Properties> LOCALE_PROPERTIES = new HashMap<>();
 
     @SuppressWarnings("resource")
     public static void init(Path languageFolder) throws IOException {

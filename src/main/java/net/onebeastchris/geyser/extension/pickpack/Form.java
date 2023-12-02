@@ -1,6 +1,6 @@
 package net.onebeastchris.geyser.extension.pickpack;
 
-import net.onebeastchris.geyser.extension.pickpack.Util.LanguageManager;
+import net.onebeastchris.geyser.extension.pickpack.util.LanguageManager;
 import org.geysermc.cumulus.component.ToggleComponent;
 import org.geysermc.cumulus.form.CustomForm;
 import org.geysermc.cumulus.form.ModalForm;
@@ -148,7 +148,7 @@ public class Form {
             String name = loader.PACKS_INFO.get(packId).header().name();
             packs.append(" - ").append(name).append("\n");
         }
-        if (packs.length() == 0) packs.append(LanguageManager.getLocaleString(lang, "no_packs.warning"));
+        if (packs.isEmpty()) packs.append(LanguageManager.getLocaleString(lang, "no_packs.warning"));
         return packs.toString();
     }
 
