@@ -42,7 +42,7 @@ public class ResourcePackLoader {
             logger.info("Loaded " + DEFAULT.size() + " default packs!");
             logger.info("Loaded " + OPTIONAL.size() + " optional packs!");
         } catch (Exception e) {
-            logger.error("Failed to load packs!", e);
+            logger.error("Failed to load packs due to: " + (e.getMessage() != null ? e.getMessage() : e));
         }
     }
 
@@ -60,8 +60,10 @@ public class ResourcePackLoader {
                 packs.put(uuid, pack);
                 PACKS_INFO.put(uuid, pack.manifest());
             } catch (Exception e) {
-                logger.error("Failed to load pack " + file.getName(), e);
-                e.printStackTrace();
+                logger.error("Failed to load pack at " + file.getName() + " due to: " + (e.getMessage() != null ? e.getMessage() : e));
+                if (logger.isDebug()) {
+                    e.printStackTrace();
+                }
             }
         }
         return packs;

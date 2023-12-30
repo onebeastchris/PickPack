@@ -20,6 +20,9 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 public class PickPack implements Extension {
+
+    private static final String version = "(v1.2.3)";
+
     public static ResourcePackLoader loader;
     public static PlayerStorage storage;
     public static Path storagePath;
@@ -53,6 +56,8 @@ public class PickPack implements Extension {
             this.disable();
             throw new RuntimeException("Failed to load language files!", e);
         }
+
+        logger.info("Started PickPack " + version);
     }
 
     @Subscribe

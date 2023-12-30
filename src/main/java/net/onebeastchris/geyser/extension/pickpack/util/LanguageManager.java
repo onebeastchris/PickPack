@@ -13,7 +13,7 @@ import java.util.*;
 
 public class LanguageManager {
     public static String DEFAULT_LOCALE = "en_us";
-    public static final String EN_US_PROPERTIES = "en_US.properties";
+    private static final String EN_US_PROPERTIES = "en_US.properties";
     public static final Map<String, Properties> LOCALE_PROPERTIES = new HashMap<>();
 
     @SuppressWarnings("resource")
@@ -82,6 +82,12 @@ public class LanguageManager {
     }
 
     public static String getLocaleString(String locale, String key) {
-        return LOCALE_PROPERTIES.getOrDefault(locale.toLowerCase(), LOCALE_PROPERTIES.get(DEFAULT_LOCALE)).getProperty(key);
+        String translation =  LOCALE_PROPERTIES.getOrDefault(locale.toLowerCase(), LOCALE_PROPERTIES.get(DEFAULT_LOCALE)).getProperty(key);
+        if (translation != null) {
+            return translation;
+        } else {
+            PickPack.logger.warning("No translation fallback found for translation key: " + key);
+            return key;
+        }
     }
 }
