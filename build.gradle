@@ -27,10 +27,10 @@ repositories {
 }
 
 dependencies {
-    compileOnly('org.geysermc.geyser:core:2.2.0-SNAPSHOT') {
+    compileOnly('org.geysermc.geyser:core:2.2.3-SNAPSHOT') {
         exclude group: 'io.netty'
     }
-    compileOnly('org.geysermc.geyser:api:2.2.0-SNAPSHOT')
+    compileOnly('org.geysermc.geyser:api:2.2.3-SNAPSHOT')
 
     api('com.fasterxml.jackson.core:jackson-annotations:2.17.0')
     api('com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.17.0')
