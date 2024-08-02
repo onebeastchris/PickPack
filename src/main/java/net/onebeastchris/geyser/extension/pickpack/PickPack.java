@@ -8,9 +8,11 @@ import org.geysermc.geyser.api.event.bedrock.SessionLoadResourcePacksEvent;
 import org.geysermc.geyser.api.event.lifecycle.GeyserDefineCommandsEvent;
 import org.geysermc.geyser.api.event.lifecycle.GeyserPostInitializeEvent;
 import org.geysermc.geyser.api.event.lifecycle.GeyserPreInitializeEvent;
+import org.geysermc.geyser.api.event.lifecycle.GeyserRegisterPermissionsEvent;
 import org.geysermc.geyser.api.extension.Extension;
 import org.geysermc.geyser.api.extension.ExtensionLogger;
 import org.geysermc.geyser.api.pack.ResourcePack;
+import org.geysermc.geyser.api.util.TriState;
 import org.geysermc.geyser.command.GeyserCommandSource;
 
 import java.io.IOException;
@@ -101,15 +103,24 @@ public class PickPack implements Extension {
     }
 
     @Subscribe
-    public void CommandEvent(GeyserDefineCommandsEvent commandsEvent) {
+    public void onPermissionRegistration(GeyserRegisterPermissionsEvent event) {
+        // menu permission
+        event.register(config.menuPermission(), TriState.TRUE);
+        // reset permission
+        event.register(config.defaultPermission(), TriState.TRUE);
+        // reload permission
+        event.register(config.reloadPermission(), TriState.NOT_SET);
+    }
+
+    @Subscribe
+    public void onCommandEvent(GeyserDefineCommandsEvent commandsEvent) {
         commandsEvent.register(Command.builder(this)
                 .name("menu")
                 .aliases(List.of("list"))
                 .bedrockOnly(true)
+                .playerOnly(true)
                 .source(GeyserConnection.class)
                 .description(config.translations().menuCommandDescription())
-                .executableOnConsole(false)
-                .suggestedOpOnly(false)
                 .permission(config.menuPermission())
                 .executor((source, command, args) -> {
                     Form form = new Form((GeyserConnection) source);
@@ -121,10 +132,9 @@ public class PickPack implements Extension {
                 .name("reset")
                 .aliases(List.of("default"))
                 .bedrockOnly(true)
+                .playerOnly(true)
                 .source(GeyserConnection.class)
                 .description(config.translations().resetCommandDescription())
-                .executableOnConsole(false)
-                .suggestedOpOnly(false)
                 .permission(config.defaultPermission())
                 .executor((source, command, args) -> {
                     Form form = new Form((GeyserConnection) source);
@@ -134,11 +144,8 @@ public class PickPack implements Extension {
 
         commandsEvent.register(Command.builder(this)
                 .name("reload")
-                .bedrockOnly(false)
                 .source(GeyserCommandSource.class)
                 .description(config.translations().reloadCommandDescription())
-                .executableOnConsole(true)
-                .suggestedOpOnly(true)
                 .permission(config.reloadPermission())
                 .executor((source, command, args) -> {
                     loader.reload();

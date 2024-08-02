@@ -1,6 +1,6 @@
 id: pickpack
 name: PickPack
 main: net.onebeastchris.geyser.extension.pickpack.PickPack
-api: 1.0.0
-version: 1.2.3
+api: 2.4.1
+version: 1.2.4
 authors: [onebeastchris]
