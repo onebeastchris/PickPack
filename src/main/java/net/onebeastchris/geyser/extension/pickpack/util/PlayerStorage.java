@@ -33,10 +33,15 @@ public class PlayerStorage {
 
     public CompletableFuture<Void> setPacks(String xuid, List<String> packs) {
         cache.put(xuid, packs);
-        Executors.newSingleThreadExecutor().execute(() ->
-                FileSaveUtil.save(packs, xuid)
-        );
-        return CompletableFuture.completedFuture(null);
+        
+        return CompletableFuture.runAsync(() -> {
+            FileSaveUtil.save(packs, xuid);
+        }, Executors.newSingleThreadExecutor())
+        .orTimeout(5, TimeUnit.SECONDS)  // <- Tambahkan ini
+        .exceptionally(e -> {
+            logger.error("Failed to save packs for " + xuid + ": " + e.getMessage());
+            return null;
+        });
     }
 
     public @NonNull List<ResourcePack> getPacks(String xuid) {
