@@ -162,5 +162,60 @@ public class PickPack implements Extension {
                     }
                 })
                 .build());
+
+		commandsEvent.register(Command.builder(this)
+				.name("nexpack")
+				.bedrockOnly(true)
+				.playerOnly(true)
+				.source(GeyserConnection.class)
+				.description("Load a specific resource pack by name")
+				.permission(config.menuPermission())
+				.suggestions((source, args) -> {
+					return loader.PACKS_INFO.values().stream()
+							.map(manifest -> manifest.header().name())
+							.collect(Collectors.toList());
+				})
+				.executor((source, command, args) -> {
+					if (args.length < 1) {
+						source.sendMessage("§cUsage: /nexpack <packName>");
+						return;
+					}
+
+					String packName = String.join(" ", args);
+					GeyserConnection connection = (GeyserConnection) source;
+					String xuid = connection.xuid();
+
+					Optional<Map.Entry<String, ResourcePackManifest>> matchedPack = loader.PACKS_INFO.entrySet().stream()
+							.filter(entry -> entry.getValue().header().name().equalsIgnoreCase(packName))
+							.findFirst();
+
+					if (matchedPack.isPresent()) {
+						String packId = matchedPack.get().getKey();
+						PickPack.storage.setPacks(xuid, List.of(packId))
+								.thenRun(() -> {
+									source.sendMessage("§aSuccessfully applied pack: §e" + packName);
+									
+									if (config.useTransferPacket()) {
+										((GeyserSession) connection).transfer(config.address(), config.port());
+									} else {
+										connection.disconnect(
+											LanguageManager.getLocaleString(
+												connection.locale(), 
+												"disconnect.message"
+											)
+										);
+									}
+								});
+					} else {
+						source.sendMessage("§cPack not found: §e" + packName);
+						source.sendMessage("§7Available packs: " + 
+							loader.PACKS_INFO.values().stream()
+								.map(m -> m.header().name())
+								.collect(Collectors.joining(", ")));
+					}
+				})
+				.build());
+				
+				
     }
 }
