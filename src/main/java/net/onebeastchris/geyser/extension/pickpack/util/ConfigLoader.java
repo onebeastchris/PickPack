@@ -69,7 +69,10 @@ public class ConfigLoader {
             @JsonProperty("default-permission") String defaultPermission,
             @JsonProperty("default-locale") String defaultLocale,
             @JsonProperty("reload-permission") String reloadPermission,
-            @JsonProperty("translations") Translations translations
+            @JsonProperty("translations") Translations translations,
+            @JsonProperty("pack-applied") String packApplied,
+            @JsonProperty("pack-not-found") String packNotFound,
+            @JsonProperty("available-packs") String availablePacks
     ) {
         public record Translations(
                 @JsonProperty("menu-command-description") String menuCommandDescription,
